@@ -84,7 +84,9 @@ export class ViewAdminLogin extends BaseComponent {
         this.errorMsg = ATTR_VALUES.EMPTY
       } else {
         devError('Google Sign-In Error:', err)
-        this.errorMsg = e.message || 'Failed to sign in with Google.'
+        const detail = e.message || 'Failed to sign in with Google.'
+
+        this.errorMsg = e.code ? `${detail} (${e.code})` : detail
       }
     } finally {
       this.loading = false

@@ -13,6 +13,23 @@
   </head>
   <body>
     <div id="cms"></div>
+    <script>
+      // Dev-only stale-SW eviction — runs before the module bundle so a
+      // leftover production worker cannot replay an old precached CMS page
+      // (the in-bundle dropStaleServiceWorkers would never get to run).
+      // Production hosts keep their service worker.
+      if (
+        /^(localhost|127\.|0\.0\.0\.0|\[::1\]|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(
+          location.hostname
+        ) &&
+        navigator.serviceWorker &&
+        navigator.serviceWorker.getRegistrations
+      ) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          for (var i = 0; i < regs.length; i++) regs[i].unregister()
+        })
+      }
+    </script>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

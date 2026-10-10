@@ -118,6 +118,24 @@ describe('AdminLogin branches', () => {
     el.remove()
   })
 
+  test('a coded auth error appends the actionable error code', async () => {
+    const { signInWithGoogle } = await import('@core/firebase.js')
+
+    signInWithGoogle.mockRejectedValueOnce({
+      code: 'auth/unauthorized-domain',
+      message: 'This domain is not authorized',
+    })
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await el.handleGoogleLogin()
+
+    expect(el.errorMsg).toContain('auth/unauthorized-domain')
+    expect(el.errorMsg).toContain('not authorized')
+
+    el.remove()
+  })
+
   test('a stale redirect marker at mount surfaces the blocked-OAuth copy and clears', async () => {
     sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT, '1')
 
