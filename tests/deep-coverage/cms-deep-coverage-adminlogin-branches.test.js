@@ -6,6 +6,7 @@ import { describe, test, expect, jest, beforeEach } from '@jest/globals'
 import { CMS_TAGS } from '@cms/tokens.js'
 import { TEST_TEXT } from '@tests/fixtures/test-constants.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
+import { CACHE_STORAGE_KEYS } from '@core/tokens/data/storage.js'
 import { MOUSE_EVENTS } from '@core/tokens/events/dom.js'
 import { CMS_ADMIN_CLASSES } from '@cms/tokens.js'
 
@@ -113,6 +114,19 @@ describe('AdminLogin branches', () => {
     await el.handleGoogleLogin()
 
     expect(el.errorMsg).toContain('Failed to sign in')
+
+    el.remove()
+  })
+
+  test('a stale redirect marker at mount surfaces the blocked-OAuth copy and clears', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT, '1')
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)).toBeNull()
+    expect(el.errorMsg).toContain('blocked the OAuth')
 
     el.remove()
   })
