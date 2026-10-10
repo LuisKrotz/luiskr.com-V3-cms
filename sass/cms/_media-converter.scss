@@ -53,6 +53,7 @@
   font-size: 0.78rem;
   color: $cms-text-primary;
   word-break: break-all;
+  -webkit-user-select: all;
   user-select: all;
 }
 
