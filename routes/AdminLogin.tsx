@@ -12,6 +12,7 @@ import { CMS_TAGS } from '@cms/tokens.js'
 import { FORM_ATTRS } from '@core/tokens/attrs/form.js'
 import { ATTR_VALUES } from '@core/tokens/attrs/values.js'
 import { AUTH_STRINGS } from '@core/tokens/strings/auth.js'
+import { CACHE_STORAGE_KEYS } from '@core/tokens/data/storage.js'
 import { h } from '@core/jsx.js'
 import { BaseComponent } from '@core/Component.js'
 import { signInWithGoogle } from '@core/firebase.js'
@@ -29,6 +30,30 @@ export class ViewAdminLogin extends BaseComponent {
 
   constructor() {
     super(cmsStyles)
+  }
+
+  /**
+   * Surfaces a broken OAuth round-trip: signInWithGoogle marks the
+   * session before the redirect navigation; still seeing the marker when
+   * this view mounts means the return leg restored no session (blocked
+   * third-party storage, strict tracking prevention). Without this the
+   * flow loops silently — click → Google → back → login → repeat.
+   */
+  override connectedCallback(): void {
+    try {
+      if (sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)) {
+        sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)
+
+        this.errorMsg =
+          'Sign-in could not complete — your browser blocked the OAuth ' +
+          'return. Allow popups and site data (cookies) for this page, ' +
+          'then try again.'
+      }
+    } catch {
+      /* sessionStorage itself unavailable — nothing to report */
+    }
+
+    super.connectedCallback()
   }
 
   /**
