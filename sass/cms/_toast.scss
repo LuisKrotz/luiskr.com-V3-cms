@@ -1,0 +1,33 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_toast.scss — the fixed notification toast (success/error variants)
+//  and its cmsFadeIn entrance keyframes.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Notification Toast ────────────────────────────────────────────────
+.cms-toast {
+  position: fixed;
+  bottom: var(--space-2xl);
+  right: var(--space-2xl);
+  background: $cms-bg-dark;
+  border: var(--space-hairline) solid $cms-accent;
+  color: $color-white;
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 var(--space-md) var(--space-2xl) rgba($color-black, 0.5);
+  z-index: var(--z-top);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+@keyframes cmsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--space-xs)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,3 +1,4 @@
+/* istanbul ignore file -- build-time vite config; only consumed by the bundler, never exercised by tests */
 /**
  * @file cms/vite.config.js
  * @description Library build for the `cms` module — admin editors, routes and

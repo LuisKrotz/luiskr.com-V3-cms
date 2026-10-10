@@ -1,0 +1,198 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_lists.scss — list-shaped editors: paragraph, channel/link,
+//  mention, section-card and media-item rows, plus the cover layout,
+//  key/value list, and checkbox controls.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Paragraph List Editor ─────────────────────────────────────────────
+.cms-para-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.cms-para-item {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+
+  textarea {
+    flex: 1;
+  }
+}
+
+.cms-para-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  flex-shrink: 0;
+}
+
+// ── Channel / Link List Editor ─────────────────────────────────────────
+.cms-channel-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.cms-channel-item {
+  display: grid;
+  grid-template-columns: to-rem(130px) 1fr auto;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.cms-channel-label {
+  flex-shrink: 0;
+}
+
+.cms-input--label {
+  font-size: 0.92rem;
+}
+
+.cms-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.cms-item-label {
+  font-weight: 600;
+  color: $cms-accent;
+}
+
+.cms-item-controls {
+  display: flex;
+  gap: var(--space-2xs);
+}
+
+// ── Mention Items ─────────────────────────────────────────────────────
+.cms-mention-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.cms-mention-item {
+  margin-bottom: 0;
+}
+
+// ── Section Card ──────────────────────────────────────────────────────
+.cms-section-card {
+  border-left: var(--space-3xs) solid $cms-accent;
+}
+
+.cms-sections-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+// ── Media Item ────────────────────────────────────────────────────────
+.cms-media-item {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  padding: var(--space-sm);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.cms-media-thumb {
+  width: to-rem(72px);
+  height: to-rem(44px);
+  object-fit: cover;
+  border-radius: var(--radius-xs);
+  border: var(--space-3xs) solid $cms-border;
+  flex-shrink: 0;
+}
+
+.cms-media-thumb-placeholder {
+  width: to-rem(72px);
+  height: to-rem(44px);
+  border-radius: var(--radius-xs);
+  background: $cms-bg-darker;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--space-xl);
+  border: var(--space-3xs) dashed $cms-border;
+  flex-shrink: 0;
+}
+
+.cms-media-fields {
+  flex: 1;
+}
+
+// ── Cover Layout ──────────────────────────────────────────────────────
+.cms-cover-layout {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.cms-cover-thumb {
+  width: to-rem(120px);
+  height: to-rem(72px);
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: var(--space-3xs) solid $cms-border;
+  flex-shrink: 0;
+}
+
+.cms-cover-fields {
+  flex: 1;
+  min-width: to-rem(280px);
+}
+
+// ── Key/Value List Editor (Playground labels, route slugs) ────────────
+.cms-kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.cms-kv-item {
+  display: grid;
+  grid-template-columns: minmax(to-rem(160px), to-rem(220px)) 1fr auto;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.cms-kv-key {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: $cms-accent;
+  word-break: break-all;
+}
+
+// ── Checkbox ──────────────────────────────────────────────────────────
+// Bare toggle used inside kv rows (playground defaults) where a wrapping
+// label would break the grid.
+.cms-checkbox {
+  width: var(--space-md);
+  height: var(--space-md);
+  accent-color: $cms-accent;
+  cursor: pointer;
+  justify-self: start;
+}
+
+.cms-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: $cms-text-primary;
+  font-size: 0.92rem;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: var(--space-md);
+    height: var(--space-md);
+    accent-color: $cms-accent;
+    cursor: pointer;
+  }
+}

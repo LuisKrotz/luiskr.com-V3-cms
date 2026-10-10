@@ -1,0 +1,55 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_deploy.scss — the Deploy Info tab: the reports table (build/scan
+//  results), score pills (good/warn/bad), and deploy URL styling.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ─── Deploy Info tab ─────────────────────────────────────────────────────────
+.cms-deploy-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-sm) 0 var(--space-md);
+  font-size: 0.9rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: to-rem(1px) solid $cms-border;
+  }
+
+  th {
+    color: $cms-text-subtle;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+  }
+}
+
+.cms-deploy-url {
+  word-break: break-all;
+  color: $cms-text-primary;
+}
+
+.cms-score {
+  display: inline-block;
+  min-width: var(--space-xl);
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--space-2xs);
+  text-align: center;
+  font-weight: 700;
+  background: $cms-bg-dark;
+}
+
+.cms-score--good {
+  color: $cms-badge-green;
+}
+
+.cms-score--warn {
+  color: $cms-badge-warn;
+}
+
+.cms-score--bad {
+  color: $cms-error;
+}

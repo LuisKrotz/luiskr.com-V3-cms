@@ -1,0 +1,44 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_tabs.scss — the tab navigation strip under the header and the
+//  .cms-main-content container each tab renders into.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── CMS Tabs & Sub-header ─────────────────────────────────────────────
+.cms-nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.5rem 2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  .cms-tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: $cms-text-subtle;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: $color-white;
+    }
+
+    &.active {
+      color: $cms-accent;
+      border-bottom-color: $cms-accent;
+    }
+  }
+}
+
+// Tab content area.
+.cms-main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: $cms-container-max-width;
+  width: 100%;
+  margin: 0 auto;
+}

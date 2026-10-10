@@ -1,0 +1,110 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_tokens.scss — CMS token publication + document base: the
+//  :host/:root custom properties the CMS document needs (it never loads
+//  _structure.scss), plus html/body and the .cms-container shell.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Token Publication ─────────────────────────────────────────────────
+// The public site publishes its design tokens on :root via _structure.scss.
+// The CMS document never loads that file — without this block every
+// var(--radius-*), var(--font-primary) and var(--text-primary) inside a
+// component's shadow DOM resolves to nothing (serif fallback + black text on
+// dark panels). Custom properties set on :host inherit into the shadow tree;
+// :root additionally covers the document when this sheet is linked page-wide.
+:host,
+:root {
+  --font-primary: 'Raleway', sans-serif;
+  --text-primary: #{$cms-text-primary};
+
+  --skel-bg-1: #{$cms-bg-card};
+  --skel-bg-2: #{$cms-bg-dark};
+
+  --radius-none: 0;
+  --radius-hairline: var(--space-hairline);
+  --radius-2xs: var(--space-2xs);
+  --radius-xs: var(--space-xs);
+  --radius-sm: var(--space-sm);
+  --radius-md: var(--space-md);
+  --radius-lg: var(--space-lg);
+  --radius-xl: var(--space-xl);
+  --radius-full: 50%;
+  --radius-round: 9999px;
+
+  // Spacing tokens (Fibonacci scale) — rem lengths, mirrors _structure.scss
+  // so component sheets can use var(--space-*) without compile-time imports.
+  // These stay literal rem values: a var() can alias ANOTHER token (like
+  // --radius-* above) but never itself — self-reference is cyclic and
+  // resolves to nothing at computed-value time.
+  --space-none: #{$space-none};
+  --space-hairline: #{to-rem($space-hairline)};
+  --space-pixel: #{to-rem($space-pixel)};
+  --space-3xs: #{to-rem($space-3xs)};
+  --space-2xs: #{to-rem($space-2xs)};
+  --space-xs: #{to-rem($space-xs)};
+  --space-sm: #{to-rem($space-sm)};
+  --space-md: #{to-rem($space-md)};
+  --space-lg: #{to-rem($space-lg)};
+  --space-xl: #{to-rem($space-xl)};
+  --space-2xl: #{to-rem($space-2xl)};
+  --space-3xl: #{to-rem($space-3xl)};
+  --space-4xl: #{to-rem($space-4xl)};
+  --space-5xl: #{to-rem($space-5xl)};
+  --space-6xl: #{to-rem($space-6xl)};
+  --space-7xl: #{to-rem($space-7xl)};
+  --space-8xl: #{to-rem($space-8xl)};
+  --space-9xl: #{to-rem($space-9xl)};
+  --space-10xl: #{to-rem($space-10xl)};
+
+  --z-top: #{$z-top};
+}
+
+// ── Document base ─────────────────────────────────────────────────────
+// Applies only where the compiled sheet is linked at page level
+// (cms/index.html); shadow-DOM copies ignore it harmlessly.
+html {
+  background-color: $cms-bg-darkest;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: $cms-bg-darkest;
+  color: $cms-text-primary;
+  font-family: 'Raleway', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#cms {
+  min-height: 100vh;
+}
+
+// ── CMS & Admin Theme System ─────────────────────────────────────────
+
+// Shared box-sizing reset for the CMS shell + login screen.
+.cms-container,
+
+// Centered login layout.
+.admin-login-wrapper {
+  box-sizing: border-box;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+}
+
+// CMS page shell — full-height dark console background.
+.cms-container {
+  min-height: 100vh;
+  background-color: $cms-bg-darkest;
+  color: $cms-text-primary;
+  font-family:
+    'Raleway',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,136 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_portfolio.scss — the portfolio/project list editor: row headers,
+//  thumbnails, JSON editor, dimension grid, and compact row buttons.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Portfolio List Editor ─────────────────────────────────────────────
+// Compact icon/utility buttons (reorder, delete, view links).
+.cms-btn--compact {
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+// Narrower selects that shouldn't stretch to the row width.
+.cms-select--narrow {
+  max-width: to-rem(220px);
+}
+
+// Node selector needs room for dotted paths (pages/earth-playground etc.).
+.cms-select--wide {
+  max-width: to-rem(300px);
+}
+
+// Monospace dictionary editor.
+.cms-json-editor {
+  font-family: monospace;
+  min-height: to-rem(400px);
+}
+
+// Vertical stack of portfolio item cards.
+.cms-pf-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+// Empty-state card when the locale has no items yet.
+.cms-pf-empty {
+  text-align: center;
+  color: $cms-text-muted;
+}
+
+// Identity row: thumb + title on the left, item controls on the right.
+.cms-pf-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.cms-pf-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+// Cover thumbnail — same aspect as .cms-media-thumb for visual rhythm.
+.cms-pf-thumb {
+  width: to-rem(72px);
+  height: to-rem(44px);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: $cms-bg-darker;
+  border: var(--space-3xs) solid $cms-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cms-pf-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cms-pf-noimg {
+  font-size: 0.8rem;
+  color: $cms-text-subtle;
+}
+
+.cms-pf-title {
+  color: $cms-accent;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+// Field grid inside each item card.
+.cms-pf-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(to-rem(240px), 1fr));
+  gap: var(--space-md);
+}
+
+// Image filename input + "view" link on one line.
+.cms-pf-image-row {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+
+  .cms-input {
+    flex: 1;
+  }
+}
+
+// Dark panel grouping the four dimension inputs.
+.cms-pf-dims {
+  background: rgba(0, 0, 0, 0.25);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-md);
+}
+
+.cms-pf-dims-title {
+  font-size: 0.85rem;
+  color: $cms-text-muted;
+  font-weight: 600;
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+.cms-pf-dims-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(to-rem(160px), 1fr));
+  gap: var(--space-sm);
+}
+
+.cms-pf-dim-label {
+  font-size: 0.8rem;
+}

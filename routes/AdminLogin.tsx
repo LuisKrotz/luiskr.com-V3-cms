@@ -11,7 +11,6 @@
 import { CMS_TAGS } from '@cms/tokens.js'
 import { FORM_ATTRS } from '@core/tokens/attrs/form.js'
 import { ATTR_VALUES } from '@core/tokens/attrs/values.js'
-import { MOUSE_EVENTS } from '@core/tokens/events/dom.js'
 import { AUTH_STRINGS } from '@core/tokens/strings/auth.js'
 import { h } from '@core/jsx.js'
 import { BaseComponent } from '@core/Component.js'
@@ -32,22 +31,12 @@ export class ViewAdminLogin extends BaseComponent {
     super(cmsStyles)
   }
 
-  /** Lifecycle: binds the login button. */
-
-  override onMounted() {
-    this._bindEvents()
-  }
-
-  /** Wires the Google sign-in button click. */
-
-  private _bindEvents(): void {
-    const btn = this.$(`.${CMS_ADMIN_CLASSES.GOOGLE_AUTH_BTN}`)
-    if (btn) {
-      this.addScopedListener(btn, MOUSE_EVENTS.CLICK, () => this.handleGoogleLogin())
-    }
-  }
-
-  /** Runs the Firebase Google OAuth popup flow; errors surface in the UI. */
+  /**
+   * Runs the Firebase Google OAuth popup flow; errors surface in the UI.
+   * The button's JSX `onClick` is the single handler — the render pass
+   * re-attaches it on every fresh node, so no manual rebind step exists
+   * (a second listener would double-fire the popup request).
+   */
 
   async handleGoogleLogin(): Promise<void> {
     // Guard: prevent duplicate popup calls that cause auth/cancelled-popup-request
@@ -56,7 +45,6 @@ export class ViewAdminLogin extends BaseComponent {
     this.loading = true
     this.errorMsg = ATTR_VALUES.EMPTY
     this._updateDom()
-    this._bindEvents()
 
     try {
       await signInWithGoogle()
@@ -73,13 +61,10 @@ export class ViewAdminLogin extends BaseComponent {
         devError('Google Sign-In Error:', err)
         this.errorMsg = e.message || 'Failed to sign in with Google.'
       }
-      this._updateDom()
-      this._bindEvents()
     } finally {
       this.loading = false
       this._loginInProgress = false
       this._updateDom()
-      this._bindEvents()
     }
   }
 

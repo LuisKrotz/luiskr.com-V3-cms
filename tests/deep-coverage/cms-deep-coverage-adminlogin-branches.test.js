@@ -117,14 +117,8 @@ describe('AdminLogin branches', () => {
     el.remove()
   })
 
-  test('bindEvents guards a missing button; button click triggers login', async () => {
+  test('button click triggers login through the JSX onClick handler', async () => {
     const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
-
-    el._contentNode.innerHTML = CHAR_STRINGS.EMPTY
-    el._bindEvents()
-
-    el._updateDom()
-    el._bindEvents()
 
     const btn = el.shadowRoot.querySelector(`.${CMS_ADMIN_CLASSES.GOOGLE_AUTH_BTN}`)
 

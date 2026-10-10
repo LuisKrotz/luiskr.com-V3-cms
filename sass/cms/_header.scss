@@ -1,0 +1,229 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_header.scss — the CMS header band and its quick cloud/AI admin
+//  bar (deploy, sync, media actions) plus the page-level layout grid.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── CMS Header & Layout ───────────────────────────────────────────────
+.cms-header {
+  min-height: $cms-header-min-height;
+  background: rgba(15, 20, 28, 0.9);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .cms-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    cursor: pointer;
+
+    .cms-logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: var(--space-2xs);
+      color: $cms-accent;
+    }
+
+    .cms-badge {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      padding: var(--space-xs) var(--space-md);
+      background: rgba(102, 252, 241, 0.15);
+      color: $cms-accent;
+      border-radius: var(--radius-xs);
+      letter-spacing: var(--space-hairline);
+    }
+  }
+
+  // ── Quick Cloud & AI Admin Bar ─────────────────────────────────────
+  .cms-quick-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin: 0.4rem 0;
+
+    .cms-dropdown {
+      position: relative;
+      display: inline-block;
+
+      &:hover .cms-dropdown-menu,
+      &:focus-within .cms-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+    }
+
+    .cms-quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      background: rgba(31, 40, 51, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: $cms-text-primary;
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+
+      .cms-btn-icon {
+        font-size: 0.95rem;
+      }
+
+      .cms-caret {
+        font-size: 0.8rem;
+        color: $cms-text-subtle;
+        transition: transform 0.2s ease;
+      }
+
+      &:hover {
+        background: rgba(45, 58, 74, 0.9);
+        border-color: rgba(102, 252, 241, 0.4);
+        color: $color-white;
+
+        .cms-caret {
+          color: $cms-accent;
+          transform: rotate(180deg);
+        }
+      }
+
+      &--ai {
+        background: rgba(102, 252, 241, 0.12);
+        border-color: rgba(102, 252, 241, 0.35);
+        color: $cms-accent;
+
+        &:hover {
+          background: rgba(102, 252, 241, 0.22);
+          box-shadow: 0 0 12px rgba(102, 252, 241, 0.25);
+        }
+      }
+
+      &--bucket {
+        &:hover {
+          border-color: $cms-badge-warn;
+        }
+      }
+
+      &--firebase {
+        &:hover {
+          border-color: $cms-badge-amber;
+        }
+      }
+
+      &--billing {
+        &:hover {
+          border-color: $cms-badge-green;
+        }
+      }
+    }
+
+    .cms-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: $cms-dropdown-min-width;
+      background: $cms-bg-card;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(var(--space-xs));
+      transition:
+        opacity 0.15s ease,
+        transform 0.15s ease,
+        visibility 0.15s ease;
+      pointer-events: none;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: calc(-1 * var(--space-md));
+        left: 0;
+        right: 0;
+        height: var(--space-md);
+      }
+
+      .cms-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        padding: 0.65rem 0.85rem;
+        color: $cms-text-primary;
+        text-decoration: none;
+        font-size: 0.84rem;
+        font-weight: 500;
+        border-radius: var(--radius-xs);
+        transition: all 0.15s ease;
+        cursor: pointer;
+
+        .item-icon {
+          font-size: 1rem;
+        }
+
+        &:hover {
+          background: rgba(102, 252, 241, 0.15);
+          color: $cms-accent;
+          transform: translateX(var(--space-xs));
+        }
+      }
+    }
+  }
+
+  .cms-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .cms-avatar {
+      width: var(--space-2xl);
+      height: var(--space-2xl);
+      border-radius: var(--radius-round);
+      object-fit: cover;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .cms-email {
+      font-size: 0.9rem;
+      color: $cms-text-muted;
+    }
+
+    .cms-logout-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: $color-white;
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-xs);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}

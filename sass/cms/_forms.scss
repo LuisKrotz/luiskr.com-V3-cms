@@ -1,0 +1,101 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_forms.scss — shared form chrome: .cms-card panels, field groups,
+//  inputs/selects/textareas, and the .cms-btn action-button family.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── CMS Cards & Form Controls ─────────────────────────────────────────
+.cms-card {
+  background: rgba(31, 40, 51, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  .cms-card-title {
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    color: $color-white;
+  }
+}
+
+// A labeled field group inside a card.
+.cms-field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-size: 0.92rem;
+    color: $cms-text-subtle;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+  }
+}
+
+// Form controls (input/select/textarea) — shared base.
+.cms-input,
+.cms-select,
+.cms-textarea {
+  width: 100%;
+  background: rgba(11, 12, 16, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+  color: $color-white;
+  font-size: 0.92rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $cms-accent;
+  }
+}
+
+// CMS button.
+.cms-btn {
+  background: $cms-accent;
+  color: $cms-bg-darkest;
+  font-weight: 600;
+  padding: 0.65rem 1.2rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: $cms-accent-hover;
+    transform: translateY(calc(-1 * var(--space-hairline)));
+  }
+
+  &--primary {
+    background: $cms-accent;
+    color: $cms-bg-darkest;
+
+    &:hover {
+      background: $cms-accent-hover;
+    }
+  }
+
+  &--danger {
+    background: $cms-danger;
+    color: $color-white;
+
+    &:hover {
+      background: $cms-danger-dark;
+    }
+  }
+
+  &--secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: $color-white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}

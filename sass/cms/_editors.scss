@@ -1,0 +1,220 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_editors.scss — shared editor layout helpers: manager grids,
+//  subsection headers, field rows/groups, labels/hints, and the gravatar
+//  editor (preview, controls, presets).
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── CMS Editor Layout Helpers (About, Footer, Projects) ───────────────
+
+// Card header variant.
+.cms-card--header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+// Per-locale section card.
+.cms-card--lang {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+// Editor page wrappers — block containers so each .cms-card stacks with its
+// own margin; named per manager for future per-section theming.
+.cms-projects-manager,
+.cms-portfolio-manager,
+.cms-about-manager,
+.cms-footer-manager,
+.cms-playground-manager,
+.cms-media-converter,
+.cms-deploy-info {
+  display: block;
+}
+
+// Subsection header — mirrors .cms-section-header at a lower hierarchy
+// level (list title + optional inline controls).
+.cms-subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+// Grouped action buttons.
+.cms-btn-group {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+// Section header row (title + actions).
+.cms-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+// Section title.
+.cms-section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: $cms-accent;
+  margin: 0 0 var(--space-sm);
+  display: block;
+}
+
+// Nested subsection block.
+.cms-subsection {
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+// Subsection heading.
+.cms-subsection-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $cms-text-muted;
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+// Horizontal row of fields.
+.cms-field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(to-rem(200px), 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+
+  > .cms-btn {
+    justify-self: start;
+    align-self: end;
+    width: auto;
+    max-width: none;
+  }
+}
+
+// Aligned field-row variant.
+.cms-field-row--align {
+  align-items: end;
+}
+
+// Compact field group.
+.cms-field-group--small {
+  max-width: to-rem(160px);
+}
+
+// Field label.
+.cms-label {
+  color: $cms-text-muted;
+  font-weight: 500;
+}
+
+// Helper/hint text under a field.
+.cms-hint {
+  font-size: 0.9rem;
+  color: $cms-text-subtle;
+  margin-top: var(--space-sm);
+}
+
+// Card subtitle.
+.cms-card-subtitle {
+  font-size: 0.88rem;
+  color: $cms-text-muted;
+  margin: 0;
+}
+
+// ── Gravatar Editor ───────────────────────────────────────────────────
+.cms-gravatar-layout {
+  display: flex;
+  gap: var(--space-xl);
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+// Gravatar preview thumbnail.
+.cms-gravatar-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.cms-gravatar-img {
+  width: to-rem(96px);
+  height: to-rem(96px);
+  border-radius: var(--radius-round);
+  object-fit: cover;
+  border: var(--space-3xs) solid $cms-accent;
+}
+
+.cms-gravatar-placeholder {
+  width: to-rem(96px);
+  height: to-rem(96px);
+  border-radius: var(--radius-round);
+  background: $cms-bg-darker;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: to-rem(40px);
+  border: var(--space-3xs) dashed $cms-border;
+}
+
+.cms-gravatar-label {
+  font-size: 0.9rem;
+  color: $cms-text-subtle;
+}
+
+.cms-gravatar-controls {
+  flex: 1;
+  min-width: to-rem(280px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.cms-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.cms-input--short {
+  max-width: to-rem(110px);
+}
+
+// Size-preset chip — ghost variant of .cms-btn: the solid accent base would
+// render the active accent ink teal-on-teal, so presets sit on the dark panel
+// tone and mark selection with an accent ring + ink instead.
+.cms-btn--preset {
+  font-size: 0.9rem;
+  padding: var(--space-xs) var(--space-md);
+  background: $cms-bg-dark;
+  color: $cms-text-primary;
+  border: var(--space-hairline) solid $cms-border;
+
+  &:hover {
+    background: $cms-bg-dark;
+    border-color: $cms-accent;
+    transform: none;
+  }
+}
+
+// Selected preset — accent ring + accent ink on the dark chip (readable).
+.cms-btn--active {
+  border-color: $cms-accent;
+  color: $cms-accent;
+}

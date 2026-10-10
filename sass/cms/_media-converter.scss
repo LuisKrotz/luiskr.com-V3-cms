@@ -1,0 +1,170 @@
+// ════════════════════════════════════════════════════════════════════════════
+//  cms/_media-converter.scss — the localhost-only media converter tab:
+//  dropzone, conversion file list with grouped rows, progress bar,
+//  spinner + cms-spin keyframes, and error text.
+//  Imported by cms.scss (manifest) — not compiled standalone.
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Media Converter (localhost-only) ──────────────────────────────────
+.cms-tab-badge {
+  margin-left: var(--space-xs);
+  padding: 0 var(--space-xs);
+  border-radius: var(--space-2xs);
+  background: $cms-accent;
+  color: $cms-bg-card;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.cms-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl) var(--space-lg);
+  border: to-rem(2px) dashed $cms-border;
+  border-radius: var(--space-sm);
+  background: $cms-bg-card;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+
+  &--over {
+    border-color: $cms-accent;
+    background: $cms-bg-darker;
+  }
+
+  p {
+    margin: 0;
+    color: $cms-text-primary;
+    font-size: 1rem;
+  }
+}
+
+.cms-dropzone-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.cms-media-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  max-height: to-rem(340px);
+  overflow-y: auto;
+  margin: var(--space-md) 0;
+  padding: var(--space-sm);
+  background: $cms-bg-card;
+  border: to-rem(1px) solid $cms-border;
+  border-radius: var(--space-xs);
+}
+
+.cms-media-list--errors {
+  border-color: $cms-danger;
+}
+
+.cms-media-list-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  font-size: 0.88rem;
+  color: $cms-text-primary;
+}
+
+.cms-media-list-group {
+  padding: var(--space-2xs) 0;
+  border-bottom: to-rem(1px) solid $cms-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.cms-media-list-name {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: $cms-text-primary;
+  word-break: break-all;
+}
+
+.cms-media-list-size {
+  color: $cms-text-subtle;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.cms-media-list-out {
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: $cms-accent;
+  padding-left: var(--space-md);
+  word-break: break-all;
+}
+
+.cms-media-list-error {
+  color: $cms-danger;
+  font-size: 0.78rem;
+  text-align: right;
+  word-break: break-all;
+}
+
+.cms-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.cms-progress {
+  height: var(--space-sm);
+  background: $cms-bg-card;
+  border-radius: var(--space-2xs);
+  overflow: hidden;
+  margin: var(--space-md) 0;
+}
+
+.cms-progress-fill {
+  height: 100%;
+  background: $cms-accent;
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.cms-loader-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.cms-spinner {
+  width: var(--space-md);
+  height: var(--space-md);
+  border: to-rem(2px) solid $cms-border;
+  border-top-color: $cms-accent;
+  border-radius: 50%;
+  animation: cms-spin 0.9s linear infinite;
+}
+
+@keyframes cms-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cms-btn-row {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.cms-error-text {
+  color: $cms-danger;
+  font-size: 0.95rem;
+}

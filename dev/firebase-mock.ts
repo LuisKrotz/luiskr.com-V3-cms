@@ -11,21 +11,50 @@ import { devInfo } from '@core/devlog.js'
  * because it cannot be reached from the shipped bundle.
  */
 
-/** Session cache for the committed snapshot — fetched once, reused. */
+/** Session cache for the merged snapshot — fetched once, reused. */
 let _dbCache: Record<string, unknown> | null = null
 
 /**
- * Fetches and caches the committed `database.json` snapshot once per
- * session — the mock's entire "remote" state.
+ * Fetches and caches the merged database view once per session — the
+ * dev server merges the committed `database.json` with the gitignored
+ * `cms/dev/mock-db.json` overlay behind `/__cms-db`, so CMS edits
+ * persist across reloads. Falls back to the plain snapshot when the
+ * middleware isn't mounted (e.g. a stale server without CMS_MOCK).
  * @returns The parsed database object.
  */
 async function loadDb(): Promise<Record<string, unknown>> {
   if (!_dbCache) {
-    const res = await fetch('/database.json')
-    _dbCache = (await res.json()) as Record<string, unknown>
+    const res = await fetch('/__cms-db')
+
+    if (res.ok) {
+      _dbCache = (await res.json()) as Record<string, unknown>
+    } else {
+      const fallback = await fetch('/database.json')
+
+      _dbCache = (await fallback.json()) as Record<string, unknown>
+    }
   }
 
   return _dbCache
+}
+
+/**
+ * Persists one write through the dev middleware — POSTs the RTDB-style
+ * op (`set`/`update`/`remove`) to `/__cms-db`, then drops the cached
+ * snapshot so the next read re-merges base + overlay. Silent no-op when
+ * the middleware isn't mounted.
+ * @param op RTDB operation name.
+ * @param path Slash-separated DB path.
+ * @param value Written payload (unused for remove).
+ */
+async function persist(op: string, path: string, value?: unknown): Promise<void> {
+  const res = await fetch('/__cms-db', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path, value, op }),
+  }).catch(() => null)
+
+  if (res?.ok) _dbCache = null
 }
 
 /**
@@ -82,18 +111,30 @@ export const get = async (r: MockRef) => {
 }
 
 /**
- * Mock of firebase/database `set()` — logs the write; nothing persists so
- * dev sessions stay reproducible against the committed snapshot.
+ * Mock of firebase/database `set()` — persists the write to the local
+ * overlay via the dev middleware, so CMS edits survive reloads.
  * @param r Target ref.
  * @param v Value that would be written.
  */
-export const set = async (r: MockRef, v: unknown) => devInfo('[CMS-MOCK] set', r.__path, v)
+export const set = async (r: MockRef, v: unknown) => {
+  devInfo('[CMS-MOCK] set', r.__path)
 
-/** Mock of firebase/database `remove()` — logs the delete, persists nothing. */
-export const remove = async (r: MockRef) => devInfo('[CMS-MOCK] remove', r.__path)
+  await persist('set', r.__path, v)
+}
 
-/** Mock of firebase/database `update()` — logs the patch, persists nothing. */
-export const update = async (r: MockRef, v: unknown) => devInfo('[CMS-MOCK] update', r.__path, v)
+/** Mock of firebase/database `remove()` — tombstones the key in the overlay. */
+export const remove = async (r: MockRef) => {
+  devInfo('[CMS-MOCK] remove', r.__path)
+
+  await persist('remove', r.__path)
+}
+
+/** Mock of firebase/database `update()` — shallow-merges the patch into the overlay. */
+export const update = async (r: MockRef, v: unknown) => {
+  devInfo('[CMS-MOCK] update', r.__path)
+
+  await persist('update', r.__path, v)
+}
 
 /** Mock of firebase/database `getDatabase()` — returns a marker handle. */
 export const getDatabase = () => ({ __mock: true })
