@@ -55,6 +55,8 @@ export function bindEvents(host: CmsMediaConverter) {
 
   on(`#${CMS_MEDIA_IDS.RUN}`, () => host._run())
   on(`#${CMS_MEDIA_IDS.RESET}`, () => host._reset())
+  on(`#${CMS_MEDIA_IDS.TOOLS_INSTALL}`, () => host._installTools())
+  on(`#${CMS_MEDIA_IDS.TOOLS_RECHECK}`, () => host._fetchTools())
   on(`#${CMS_MEDIA_IDS.CLEAR_LIST}`, () => {
     host.queue = []
     host._updateDom()

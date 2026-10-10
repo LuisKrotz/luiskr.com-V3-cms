@@ -12,7 +12,7 @@ import { NET_STRINGS } from '@core/tokens/strings/net.js'
 import { STATE_STRINGS } from '@core/tokens/strings/state.js'
 import { TYPE_STRINGS } from '@core/tokens/strings/types.js'
 import type { CmsMediaConverter } from './CmsMediaConverter.js'
-import { API_BASE, PHASE, POLL_MS, type JobStatus } from './consts.js'
+import { API_BASE, PHASE, POLL_MS, type JobStatus, type ToolsReport } from './consts.js'
 
 /**
  * Cancels the pending poll timer — called before every new poll schedule
@@ -204,6 +204,54 @@ export async function errText(res: Response, fallback: string): Promise<string> 
   } catch {
     return res.status === 404 ? 'media converter API unavailable (dev server only)' : fallback
   }
+}
+
+/**
+ * GETs the dev server's toolchain report (detected ffmpeg/ImageMagick/
+ * cjpeg + the per-platform install plan) and stores it on the host — the
+ * render layer turns it into the guided-setup panel. A missing/failed
+ * endpoint just hides the panel (older dev server, preview off).
+ * @param host The CmsMediaConverter element.
+ */
+export async function fetchTools(host: CmsMediaConverter) {
+  try {
+    const res = await fetch(`${API_BASE}/tools`)
+    host.tools = res.ok ? ((await res.json()) as ToolsReport) : null
+  } catch {
+    host.tools = null
+  }
+
+  host._updateDom()
+  host._bindEvents()
+}
+
+/**
+ * POSTs the server's install plan (detected package manager runs the
+ * package commands, then re-probes) and stores the refreshed report plus
+ * the collected stdout/stderr log for the setup panel's log view. The
+ * installing flag disables both buttons while the spawn runs.
+ * @param host The CmsMediaConverter element.
+ */
+export async function installTools(host: CmsMediaConverter) {
+  host.toolsInstalling = true
+  host._updateDom()
+
+  try {
+    const res = await fetch(`${API_BASE}/tools/install`, {
+      method: NET_STRINGS.METHOD_POST,
+    })
+    if (!res.ok) throw new Error(await errText(res, 'tool install failed'))
+
+    const data = (await res.json()) as { log?: string; report?: ToolsReport }
+    host.tools = data.report || host.tools
+    host.installLog = data.log || CHAR_STRINGS.EMPTY
+  } catch (err) {
+    host._notify(String((err as Error).message || err))
+  }
+
+  host.toolsInstalling = false
+  host._updateDom()
+  host._bindEvents()
 }
 
 /**

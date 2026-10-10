@@ -5,6 +5,71 @@
 //  Imported by cms.scss (manifest) — not compiled standalone.
 // ════════════════════════════════════════════════════════════════════════════
 
+// ── Toolchain setup panel ──────────────────────────────────────────────
+// Guided install card rendered above the dropzone whenever the dev
+// server reports missing conversion tools (GET /api/media-convert/tools).
+.cms-media-tools {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin: var(--space-md) 0;
+  padding: var(--space-sm);
+  background: $cms-bg-darker;
+  border: to-rem(1px) solid $cms-border;
+  border-radius: var(--space-xs);
+}
+
+.cms-media-tools-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  font-size: 0.88rem;
+}
+
+.cms-media-tools-name {
+  font-family: monospace;
+  color: $cms-text-primary;
+}
+
+.cms-media-tools-state {
+  font-size: 0.8rem;
+  white-space: nowrap;
+
+  &--ok {
+    color: $cms-accent;
+  }
+
+  &--missing {
+    color: $cms-danger;
+  }
+}
+
+.cms-media-tools-cmd {
+  display: block;
+  padding: var(--space-2xs) var(--space-xs);
+  background: $cms-bg-card;
+  border: to-rem(1px) solid $cms-border;
+  border-radius: var(--space-2xs);
+  font-size: 0.78rem;
+  color: $cms-text-primary;
+  word-break: break-all;
+  user-select: all;
+}
+
+.cms-media-tools-log {
+  max-height: to-rem(200px);
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-xs);
+  background: $cms-bg-card;
+  border: to-rem(1px) solid $cms-border;
+  border-radius: var(--space-2xs);
+  font-size: 0.72rem;
+  color: $cms-text-subtle;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 // ── Media Converter (localhost-only) ──────────────────────────────────
 .cms-tab-badge {
   margin-left: var(--space-xs);

@@ -7,7 +7,7 @@ import { FORM_ATTRS } from '@core/tokens/attrs/form.js'
 import { h } from '@core/jsx.js'
 import type { CmsMediaConverter } from './CmsMediaConverter.js'
 import { IS_LOCALHOST } from './CmsMediaConverter.js'
-import { MIME_HINT, PHASE } from './consts.js'
+import { MIME_HINT, PHASE, TOOL_ROWS, type ToolsReport } from './consts.js'
 import { fmtBytes } from './files.js'
 import {
   CMS_BUTTON_CLASSES,
@@ -202,6 +202,89 @@ export function renderError(host: CmsMediaConverter) {
 }
 
 /**
+ * Renders the guided toolchain-setup panel — hidden while the report is
+ * unfetched or every tool is present. Required tools (ffmpeg/ffprobe)
+ * block conversion; optional ones (ImageMagick, cjpeg) fall back to
+ * ffmpeg encoders, so their state badge reads optional rather than ✗.
+ * The install plan shows the detected manager's copyable commands; the
+ * Install button only appears when the plan can run without a root shell
+ * (brew/winget/choco) — sudo managers get manual commands instead.
+ * @param host — the host component
+ */
+export function renderTools(host: CmsMediaConverter) {
+  const report = host.tools
+  if (!report?.tools) return null
+
+  const toolMap = report.tools
+  const rows = TOOL_ROWS.map((row) => ({
+    ...row,
+    ok: row.keys.some((k) => toolMap[k]),
+  }))
+  const required = rows.some((r) => r.required && !r.ok)
+  const optional = rows.some((r) => !r.required && !r.ok)
+  if (!required && !optional) return null
+
+  const plan: NonNullable<ToolsReport['plan']> = report.plan || {}
+  const commands = plan.commands || []
+  const canInstall = commands.length > 0 && !plan.needsRoot
+  const busy = host.toolsInstalling
+
+  return (
+    <div class={CMS_MEDIA_CLASSES.CMS_TOOLS_PANEL}>
+      <p class={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>
+        {required ? '⚠ Setup required — conversion tools missing' : 'Optional tools missing'}
+      </p>
+
+      {rows.map((r) => (
+        <div class={CMS_MEDIA_CLASSES.CMS_TOOLS_ROW} key={r.label}>
+          <span class={CMS_MEDIA_CLASSES.CMS_TOOLS_NAME}>{r.label}</span>
+          <span
+            class={
+              r.ok
+                ? CMS_MEDIA_CLASSES.CMS_TOOLS_STATE_OK
+                : CMS_MEDIA_CLASSES.CMS_TOOLS_STATE_MISSING
+            }
+          >
+            {r.ok ? '✓ found' : r.required ? '✗ missing' : 'optional'}
+          </span>
+        </div>
+      ))}
+
+      {(plan.manual || []).map((cmd) => (
+        <code class={CMS_MEDIA_CLASSES.CMS_TOOLS_CMD} key={cmd}>
+          {cmd}
+        </code>
+      ))}
+
+      <div class={CMS_MEDIA_CLASSES.CMS_BTN_ROW}>
+        {canInstall ? (
+          <button
+            id={CMS_MEDIA_IDS.TOOLS_INSTALL}
+            class={CMS_BUTTON_CLASSES.CMS_BTN_PRIMARY}
+            type={FORM_ATTRS.BUTTON}
+            disabled={busy}
+          >
+            {busy ? 'Installing…' : `Install via ${report.manager}`}
+          </button>
+        ) : null}
+        <button
+          id={CMS_MEDIA_IDS.TOOLS_RECHECK}
+          class={CMS_BUTTON_CLASSES.CMS_BTN_SECONDARY}
+          type={FORM_ATTRS.BUTTON}
+          disabled={busy}
+        >
+          Re-check
+        </button>
+      </div>
+
+      {host.installLog ? (
+        <pre class={CMS_MEDIA_CLASSES.CMS_TOOLS_LOG}>{host.installLog}</pre>
+      ) : null}
+    </div>
+  )
+}
+
+/**
  * Renders media converter.
  * @param host — the host component
  */
@@ -228,6 +311,8 @@ export function renderMediaConverter(host: CmsMediaConverter) {
         <code>-mozjpg-*.jpg</code>, <code>.mp4-scaledown-2x.mp4</code>, <code>.jpg-thumb.jpg</code>)
         and download as a ZIP. Localhost only.
       </p>
+
+      {host._renderTools()}
 
       {host.phase === PHASE.IDLE ? host._renderIdle() : null}
       {host.phase === PHASE.UPLOADING

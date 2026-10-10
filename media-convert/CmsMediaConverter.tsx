@@ -16,7 +16,7 @@ import { CMS_EVENTS, CMS_TAGS } from '@cms/tokens.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 import { BaseComponent } from '@core/Component.js'
 import cmsStyles from '@cms/sass/cms.scss?inline'
-import { PHASE, type JobStatus, type QueueItem } from './consts.js'
+import { PHASE, type JobStatus, type QueueItem, type ToolsReport } from './consts.js'
 import { bindEvents } from './events.js'
 import { collectDrop, collectInput } from './files.js'
 import {
@@ -24,7 +24,9 @@ import {
   createJob,
   deleteJob,
   errText,
+  fetchTools,
   finish,
+  installTools,
   poll,
   reset,
   run,
@@ -39,6 +41,7 @@ import {
   renderError,
   renderIdle,
   renderMediaConverter,
+  renderTools,
 } from './render.js'
 
 // Dev-server gate: the /api/media-convert routes only exist on vite's
@@ -59,6 +62,9 @@ export class CmsMediaConverter extends BaseComponent {
   jobId: string | null = null
   uploaded = 0
   status: JobStatus | null = null // server job status payload
+  tools: ToolsReport | null = null // dev-server toolchain report (null = hidden)
+  toolsInstalling = false // install-plan spawn running — disables setup buttons
+  installLog: string = CHAR_STRINGS.EMPTY // install stdout/stderr shown in the panel
   dragging = false
   error: string = CHAR_STRINGS.EMPTY
   _pollTimer: ReturnType<typeof setTimeout> | null = null
@@ -67,10 +73,11 @@ export class CmsMediaConverter extends BaseComponent {
     super(cmsStyles)
   }
 
-  /** Lifecycle: binds drop-zone + input events. */
+  /** Lifecycle: binds drop-zone + input events, probes the dev-server toolchain. */
 
   override onMounted() {
     bindEvents(this)
+    if (IS_LOCALHOST) this._fetchTools()
   }
 
   /** Lifecycle: stops polling + revokes object URLs. */
@@ -128,6 +135,12 @@ export class CmsMediaConverter extends BaseComponent {
   _errText(res: Response, fallback: string) {
     return errText(res, fallback)
   }
+  _fetchTools() {
+    return fetchTools(this)
+  }
+  _installTools() {
+    return installTools(this)
+  }
   _run() {
     return run(this)
   }
@@ -148,6 +161,9 @@ export class CmsMediaConverter extends BaseComponent {
   }
   _renderError() {
     return renderError(this)
+  }
+  _renderTools() {
+    return renderTools(this)
   }
 
   /** JSX template for the current phase (delegate — media-convert/render.tsx). */

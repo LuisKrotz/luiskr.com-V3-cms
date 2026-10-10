@@ -39,6 +39,38 @@ export interface QueueItem {
   rel: string
 }
 
+/**
+ * Tool rows rendered by the setup panel — [label, tools-map keys]. Order
+ * is display order; required entries block conversion when missing.
+ * `imagemagick` collapses the platform split: `magick` (win32/IM7) or
+ * `convert` (POSIX/IM6) both satisfy it.
+ */
+export const TOOL_ROWS = Object.freeze([
+  { label: 'ffmpeg', keys: ['ffmpeg'], required: true },
+  { label: 'ffprobe', keys: ['ffprobe'], required: true },
+  { label: 'ImageMagick', keys: ['magick', 'convert'], required: false },
+  { label: 'mozjpeg cjpeg', keys: ['cjpeg'], required: false },
+])
+
+/** Server payload from GET /api/media-convert/tools (shared/scripts/media-convert/install.js). */
+export interface ToolsReport {
+  /** OS the dev server runs on ('linux'|'darwin'|'win32'). */
+  platform?: string
+  /** Per-binary presence flags keyed by executable name. */
+  tools?: Record<string, boolean>
+  /** Missing-tool groups (ffmpeg, imagemagick, cjpeg). */
+  missing?: Record<string, boolean>
+  /** Detected package manager (or null when none found). */
+  manager?: string | null
+  /** Install plan — runnable commands vs. manual guidance. */
+  plan?: {
+    manager?: string | null
+    needsRoot?: boolean
+    commands?: [string, string[]][]
+    manual?: string[]
+  }
+}
+
 /** Per-file outcome reported by the conversion server. */
 export interface JobResult {
   /** Whether this file converted successfully. */

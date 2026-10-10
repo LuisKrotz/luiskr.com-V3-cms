@@ -29,6 +29,14 @@ export const CMS_MEDIA_CLASSES = Object.freeze({
   CMS_SPINNER: `${_B_CMS}-spinner`,
   CMS_PROGRESS: `${_B_CMS}-progress`,
   CMS_ERROR_TEXT: `${_B_CMS}-error-text`,
+  CMS_TOOLS_PANEL: `${_B_CMS_MEDIA}-tools`,
+  CMS_TOOLS_ROW: `${_B_CMS_MEDIA}-tools-row`,
+  CMS_TOOLS_NAME: `${_B_CMS_MEDIA}-tools-name`,
+  CMS_TOOLS_STATE: `${_B_CMS_MEDIA}-tools-state`,
+  CMS_TOOLS_STATE_OK: `${_B_CMS_MEDIA}-tools-state ${_B_CMS_MEDIA}-tools-state--ok`,
+  CMS_TOOLS_STATE_MISSING: `${_B_CMS_MEDIA}-tools-state ${_B_CMS_MEDIA}-tools-state--missing`,
+  CMS_TOOLS_LOG: `${_B_CMS_MEDIA}-tools-log`,
+  CMS_TOOLS_CMD: `${_B_CMS_MEDIA}-tools-cmd`,
 })
 
 /**
@@ -42,4 +50,6 @@ export const CMS_MEDIA_IDS = Object.freeze({
   RESET: 'cms-media-reset',
   CLEAR_LIST: 'cms-media-clear-list',
   DOWNLOAD: 'cms-media-download',
+  TOOLS_INSTALL: 'cms-media-tools-install',
+  TOOLS_RECHECK: 'cms-media-tools-recheck',
 })
