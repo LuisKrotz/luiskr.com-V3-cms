@@ -136,6 +136,20 @@ describe('AdminLogin branches', () => {
     el.remove()
   })
 
+  test('a persisted OAuth-return error at mount surfaces the real code and clears', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR, 'auth/unauthorized-domain')
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)).toBeNull()
+    expect(el.errorMsg).toContain('auth/unauthorized-domain')
+    expect(el.errorMsg).toContain('authorized domains')
+
+    el.remove()
+  })
+
   test('a stale redirect marker at mount surfaces the blocked-OAuth copy and clears', async () => {
     sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT, '1')
 

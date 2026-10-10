@@ -41,7 +41,16 @@ export class ViewAdminLogin extends BaseComponent {
    */
   override connectedCallback(): void {
     try {
-      if (sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)) {
+      const authErr = sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
+
+      if (authErr) {
+        sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
+
+        this.errorMsg =
+          'Sign-in could not complete — the OAuth return was rejected ' +
+          `(${authErr}). The Firebase console's authorized domains and ` +
+          'Google provider config must allow this origin.'
+      } else if (sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)) {
         sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)
 
         this.errorMsg =
