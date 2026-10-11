@@ -7,6 +7,7 @@ import { CMS_TAGS } from '@cms/tokens.js'
 import { TEST_TEXT } from '@tests/fixtures/test-constants.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 import { CACHE_STORAGE_KEYS } from '@core/tokens/data/storage.js'
+import { AUTH_STRINGS } from '@core/tokens/strings/auth.js'
 import { MOUSE_EVENTS } from '@core/tokens/events/dom.js'
 import { CMS_ADMIN_CLASSES } from '@cms/tokens.js'
 
@@ -150,7 +151,7 @@ describe('AdminLogin branches', () => {
     el.remove()
   })
 
-  test('a stale redirect marker at mount surfaces the blocked-OAuth copy and clears', async () => {
+  test('a stale redirect marker at mount surfaces the lost-session copy and clears', async () => {
     sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT, '1')
 
     const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
@@ -158,7 +159,51 @@ describe('AdminLogin branches', () => {
     await flush()
 
     expect(sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)).toBeNull()
-    expect(el.errorMsg).toContain('blocked the OAuth')
+    expect(el.errorMsg).toContain('returned')
+
+    el.remove()
+  })
+
+  test('a lost-session error cites the storage relay, not a cookie block', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR, AUTH_STRINGS.ERR_NO_REDIRECT_EVENT)
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(el.errorMsg).toContain(AUTH_STRINGS.ERR_NO_REDIRECT_EVENT)
+    expect(el.errorMsg).toContain('cross-origin web storage')
+    expect(el.errorMsg).not.toContain('blocked the OAuth')
+
+    el.remove()
+  })
+
+  test('a preserved popup-leg code is appended to the lost-session diagnosis', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR, AUTH_STRINGS.ERR_NO_REDIRECT_EVENT)
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR, 'auth/internal-error')
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR)).toBeNull()
+    expect(el.errorMsg).toContain('auth/internal-error')
+
+    el.remove()
+  })
+
+  test('a stale marker also carries the preserved popup-leg code', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT, '1')
+    sessionStorage.setItem(
+      CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR,
+      AUTH_STRINGS.ERR_STORAGE_UNSUPPORTED
+    )
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(el.errorMsg).toContain(AUTH_STRINGS.ERR_STORAGE_UNSUPPORTED)
 
     el.remove()
   })

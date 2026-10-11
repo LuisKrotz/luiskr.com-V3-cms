@@ -34,33 +34,45 @@ export class ViewAdminLogin extends BaseComponent {
 
   /**
    * Surfaces a broken OAuth round-trip: signInWithGoogle marks the
-   * session before the redirect navigation; still seeing the marker when
-   * this view mounts means the return leg restored no session (blocked
-   * third-party storage, strict tracking prevention). Without this the
-   * flow loops silently — click → Google → back → login → repeat.
+   * session before the redirect navigation and preserves the popup-leg
+   * code; still seeing the marker when this view mounts means the
+   * return leg restored no session. The relay stores the event in the
+   * helper iframe's web storage, so browsers that partition or block
+   * third-party site data drop it — even with first-party cookies
+   * allowed. Without this the flow loops silently:
+   * click → Google → back → login → repeat.
    */
   override connectedCallback(): void {
     try {
       const authErr = sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
+      const popupErr = sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR)
+
+      sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
+      sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR)
+
+      const popupDetail = popupErr ? ` — earlier popup attempt: ${popupErr}` : ''
 
       if (authErr) {
-        sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
-
         this.errorMsg = AUTH_BLOCKED_STORAGE_CODES.includes(authErr)
-          ? 'Sign-in could not complete — the browser blocked the OAuth ' +
-            `event storage (${authErr}). Allow third-party site data ` +
-            '(cookies) for this page, or use a profile that allows it, ' +
-            'then try again.'
+          ? 'Sign-in could not complete — the OAuth session was lost on ' +
+            `the return leg (${authErr}${popupDetail}). The auth helper ` +
+            'relays sign-in through cross-origin web storage, which ' +
+            'browsers partition or block as third-party site data even ' +
+            'when first-party cookies are allowed. Use the same-origin ' +
+            'CMS entry (https), or allow third-party site data for ' +
+            'this page, then try again.'
           : 'Sign-in could not complete — the OAuth return was rejected ' +
-            `(${authErr}). The Firebase console's authorized domains and ` +
-            'Google provider config must allow this origin.'
+            `(${authErr}${popupDetail}). Check the Firebase console's ` +
+            'authorized domains and Google provider configuration.'
       } else if (sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)) {
         sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)
 
         this.errorMsg =
-          'Sign-in could not complete — your browser blocked the OAuth ' +
-          'return. Allow popups and site data (cookies) for this page, ' +
-          'then try again.'
+          'Sign-in could not complete — the OAuth round-trip returned ' +
+          `no session${popupDetail}. The auth helper's cross-origin ` +
+          'storage was likely partitioned or blocked; use the ' +
+          'same-origin CMS entry (https), or allow third-party site ' +
+          'data for this page, then try again.'
       }
     } catch {
       /* sessionStorage itself unavailable — nothing to report */
