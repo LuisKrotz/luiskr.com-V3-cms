@@ -11,7 +11,7 @@
 import { CMS_TAGS } from '@cms/tokens.js'
 import { FORM_ATTRS } from '@core/tokens/attrs/form.js'
 import { ATTR_VALUES } from '@core/tokens/attrs/values.js'
-import { AUTH_STRINGS } from '@core/tokens/strings/auth.js'
+import { AUTH_BLOCKED_STORAGE_CODES, AUTH_STRINGS } from '@core/tokens/strings/auth.js'
 import { CACHE_STORAGE_KEYS } from '@core/tokens/data/storage.js'
 import { h } from '@core/jsx.js'
 import { BaseComponent } from '@core/Component.js'
@@ -46,10 +46,14 @@ export class ViewAdminLogin extends BaseComponent {
       if (authErr) {
         sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
 
-        this.errorMsg =
-          'Sign-in could not complete — the OAuth return was rejected ' +
-          `(${authErr}). The Firebase console's authorized domains and ` +
-          'Google provider config must allow this origin.'
+        this.errorMsg = AUTH_BLOCKED_STORAGE_CODES.includes(authErr)
+          ? 'Sign-in could not complete — the browser blocked the OAuth ' +
+            `event storage (${authErr}). Allow third-party site data ` +
+            '(cookies) for this page, or use a profile that allows it, ' +
+            'then try again.'
+          : 'Sign-in could not complete — the OAuth return was rejected ' +
+            `(${authErr}). The Firebase console's authorized domains and ` +
+            'Google provider config must allow this origin.'
       } else if (sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)) {
         sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)
 
