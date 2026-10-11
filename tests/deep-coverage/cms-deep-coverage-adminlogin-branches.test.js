@@ -279,6 +279,52 @@ describe('AdminLogin branches', () => {
     el.remove()
   })
 
+  test('a persisted popup detail is preferred over the thrown SDK message', async () => {
+    const { signInWithGoogle } = await import('@core/firebase.js')
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    // firebase.ts writes the recovered server cause DURING the sign-in
+    // call — after the mount cleared storage — so set it just before.
+    sessionStorage.setItem(
+      CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL,
+      'Firebase App Check token is invalid.'
+    )
+    signInWithGoogle.mockRejectedValueOnce({
+      code: AUTH_STRINGS.ERR_INTERNAL,
+      message: 'Firebase: Error (auth/internal-error).',
+    })
+
+    await el.handleGoogleLogin()
+
+    expect(sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL)).toBeNull()
+    expect(el.errorMsg).toContain('App Check')
+    expect(el.errorMsg).not.toContain('auth/internal-error')
+
+    el.remove()
+  })
+
+  test('unreadable storage in the error path falls back to the thrown message', async () => {
+    const { signInWithGoogle } = await import('@core/firebase.js')
+
+    jest.spyOn(window.Storage.prototype, 'getItem').mockImplementationOnce(() => {
+      throw new Error('storage-blocked')
+    })
+    signInWithGoogle.mockRejectedValueOnce({
+      code: 'auth/unauthorized-domain',
+      message: 'This domain is not authorized',
+    })
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await el.handleGoogleLogin()
+
+    expect(el.errorMsg).toContain('not authorized')
+
+    jest.restoreAllMocks()
+    el.remove()
+  })
+
   test('a JSON error message without an inner message keeps the raw text', async () => {
     const { signInWithGoogle } = await import('@core/firebase.js')
 

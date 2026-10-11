@@ -149,7 +149,20 @@ export class ViewAdminLogin extends BaseComponent {
         this.errorMsg = ATTR_VALUES.EMPTY
       } else {
         devError('Google Sign-In Error:', err)
-        const detail = e.message ? unwrapAuthMessage(e.message) : 'Failed to sign in with Google.'
+
+        // signInWithGoogle persists the recovered server-side cause
+        // (CMS_AUTH_POPUP_DETAIL) — the SDK strips it from the thrown
+        // error — so prefer it over unwrapping e.message.
+        let persisted = ''
+        try {
+          persisted = sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL) || ''
+          sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL)
+        } catch {
+          /* storage unavailable — fall back to the error message */
+        }
+
+        const detail =
+          persisted || (e.message ? unwrapAuthMessage(e.message) : 'Failed to sign in with Google.')
 
         this.errorMsg = detail.includes(AUTH_STRINGS.APPCHECK_MARKER)
           ? 'Sign-in was rejected by the Firebase project — ' +
