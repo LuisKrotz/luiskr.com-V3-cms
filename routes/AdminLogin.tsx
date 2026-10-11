@@ -21,6 +21,28 @@ import { CMS_ADMIN_CLASSES } from '@cms/tokens.js'
 import { devError } from '@core/devlog.js'
 
 /**
+ * Unwraps a Firebase error's real cause: auth/internal-error embeds the
+ * backend rejection as a JSON string inside `message` (the App-Check 401
+ * from createAuthUri), so the inner `error.message` is what actually
+ * names the failure. Returns the raw text when it isn't wrapped JSON.
+ * @param raw The SDK error message (possibly a JSON-encoded API error).
+ * @returns The innermost human-readable message.
+ */
+const unwrapAuthMessage = (raw: string): string => {
+  const start = raw.indexOf('{')
+
+  if (start < 0) return raw
+
+  try {
+    const inner = JSON.parse(raw.slice(start)) as { error?: { message?: string } }
+
+    return inner?.error?.message || raw
+  } catch {
+    return raw
+  }
+}
+
+/**
  * The ViewAdminLogin — admin login class.
  */
 export class ViewAdminLogin extends BaseComponent {
@@ -46,33 +68,51 @@ export class ViewAdminLogin extends BaseComponent {
     try {
       const authErr = sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
       const popupErr = sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR)
+      const popupRaw = sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL)
 
       sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR)
       sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR)
+      sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL)
 
-      const popupDetail = popupErr ? ` — earlier popup attempt: ${popupErr}` : ''
+      const popupCause = popupRaw ? unwrapAuthMessage(popupRaw) : ATTR_VALUES.EMPTY
+      const popupDetail = popupErr
+        ? ` — earlier popup attempt: ${popupErr}` + (popupCause ? ` (${popupCause})` : '')
+        : ''
+      const appCheckRejected = popupCause.includes(AUTH_STRINGS.APPCHECK_MARKER)
 
       if (authErr) {
-        this.errorMsg = AUTH_BLOCKED_STORAGE_CODES.includes(authErr)
-          ? 'Sign-in could not complete — the OAuth session was lost on ' +
-            `the return leg (${authErr}${popupDetail}). The auth helper ` +
-            'relays sign-in through cross-origin web storage, which ' +
-            'browsers partition or block as third-party site data even ' +
-            'when first-party cookies are allowed. Use the same-origin ' +
-            'CMS entry (https), or allow third-party site data for ' +
-            'this page, then try again.'
-          : 'Sign-in could not complete — the OAuth return was rejected ' +
-            `(${authErr}${popupDetail}). Check the Firebase console's ` +
-            'authorized domains and Google provider configuration.'
+        this.errorMsg = appCheckRejected
+          ? 'Sign-in was rejected by the Firebase project — ' +
+            'Authentication enforces App Check but this app sends no ' +
+            'App Check token. Configure a reCAPTCHA site key ' +
+            '(VITE_FIREBASE_APPCHECK_SITE_KEY) or relax App Check ' +
+            'enforcement for Authentication in the Firebase console.'
+          : AUTH_BLOCKED_STORAGE_CODES.includes(authErr)
+            ? 'Sign-in could not complete — the OAuth session was lost ' +
+              `on the return leg (${authErr}${popupDetail}). The auth ` +
+              'helper relays sign-in through cross-origin web storage, ' +
+              'which browsers partition or block as third-party site ' +
+              'data even when first-party cookies are allowed. Use the ' +
+              'same-origin CMS entry (https), or allow third-party ' +
+              'site data for this page, then try again.'
+            : 'Sign-in could not complete — the OAuth return was ' +
+              `rejected (${authErr}${popupDetail}). Check the Firebase ` +
+              "console's authorized domains and Google provider " +
+              'configuration.'
       } else if (sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)) {
         sessionStorage.removeItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT)
 
-        this.errorMsg =
-          'Sign-in could not complete — the OAuth round-trip returned ' +
-          `no session${popupDetail}. The auth helper's cross-origin ` +
-          'storage was likely partitioned or blocked; use the ' +
-          'same-origin CMS entry (https), or allow third-party site ' +
-          'data for this page, then try again.'
+        this.errorMsg = appCheckRejected
+          ? 'Sign-in was rejected by the Firebase project — ' +
+            'Authentication enforces App Check but this app sends no ' +
+            'App Check token. Configure a reCAPTCHA site key ' +
+            '(VITE_FIREBASE_APPCHECK_SITE_KEY) or relax App Check ' +
+            'enforcement for Authentication in the Firebase console.'
+          : 'Sign-in could not complete — the OAuth round-trip ' +
+            `returned no session${popupDetail}. The auth helper's ` +
+            'cross-origin storage was likely partitioned or blocked; ' +
+            'use the same-origin CMS entry (https), or allow ' +
+            'third-party site data for this page, then try again.'
       }
     } catch {
       /* sessionStorage itself unavailable — nothing to report */
@@ -109,9 +149,17 @@ export class ViewAdminLogin extends BaseComponent {
         this.errorMsg = ATTR_VALUES.EMPTY
       } else {
         devError('Google Sign-In Error:', err)
-        const detail = e.message || 'Failed to sign in with Google.'
+        const detail = e.message ? unwrapAuthMessage(e.message) : 'Failed to sign in with Google.'
 
-        this.errorMsg = e.code ? `${detail} (${e.code})` : detail
+        this.errorMsg = detail.includes(AUTH_STRINGS.APPCHECK_MARKER)
+          ? 'Sign-in was rejected by the Firebase project — ' +
+            'Authentication enforces App Check but this app sends no ' +
+            'App Check token. Configure a reCAPTCHA site key ' +
+            '(VITE_FIREBASE_APPCHECK_SITE_KEY) or relax App Check ' +
+            'enforcement for Authentication in the Firebase console.'
+          : e.code
+            ? `${detail} (${e.code})`
+            : detail
       }
     } finally {
       this.loading = false

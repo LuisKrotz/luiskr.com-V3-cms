@@ -208,6 +208,105 @@ describe('AdminLogin branches', () => {
     el.remove()
   })
 
+  test('an App-Check-wrapped popup detail surfaces the enforcement copy', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR, AUTH_STRINGS.ERR_NO_REDIRECT_EVENT)
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR, AUTH_STRINGS.ERR_INTERNAL)
+    sessionStorage.setItem(
+      CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL,
+      '{"error":{"code":401,"message":"Firebase App Check token is invalid."}}'
+    )
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(sessionStorage.getItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL)).toBeNull()
+    expect(el.errorMsg).toContain('App Check')
+    expect(el.errorMsg).toContain('VITE_FIREBASE_APPCHECK_SITE_KEY')
+    expect(el.errorMsg).not.toContain('cross-origin web storage')
+
+    el.remove()
+  })
+
+  test('a stale marker with an App-Check popup detail prefers the enforcement copy', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_REDIRECT, '1')
+    sessionStorage.setItem(
+      CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL,
+      '{"error":{"message":"Firebase App Check token is invalid."}}'
+    )
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(el.errorMsg).toContain('App Check')
+    expect(el.errorMsg).not.toContain('partitioned')
+
+    el.remove()
+  })
+
+  test('a non-App-Check popup detail is appended inside the lost-session copy', async () => {
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_ERROR, AUTH_STRINGS.ERR_NO_REDIRECT_EVENT)
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_ERROR, AUTH_STRINGS.ERR_INTERNAL)
+    sessionStorage.setItem(CACHE_STORAGE_KEYS.CMS_AUTH_POPUP_DETAIL, 'helper iframe never answered')
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await flush()
+
+    expect(el.errorMsg).toContain('auth/internal-error')
+    expect(el.errorMsg).toContain('helper iframe never answered')
+    expect(el.errorMsg).toContain('cross-origin web storage')
+
+    el.remove()
+  })
+
+  test('a thrown internal-error with an App-Check body shows the enforcement copy', async () => {
+    const { signInWithGoogle } = await import('@core/firebase.js')
+
+    signInWithGoogle.mockRejectedValueOnce({
+      code: AUTH_STRINGS.ERR_INTERNAL,
+      message: '{"error":{"code":401,"message":"Firebase App Check token is invalid."}}',
+    })
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await el.handleGoogleLogin()
+
+    expect(el.errorMsg).toContain('App Check')
+    expect(el.errorMsg).not.toContain('{')
+
+    el.remove()
+  })
+
+  test('a JSON error message without an inner message keeps the raw text', async () => {
+    const { signInWithGoogle } = await import('@core/firebase.js')
+
+    signInWithGoogle.mockRejectedValueOnce({ code: 'auth/x', message: '{"foo":1}' })
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await el.handleGoogleLogin()
+
+    expect(el.errorMsg).toContain('{"foo":1}')
+
+    el.remove()
+  })
+
+  test('a malformed JSON error message falls back to the raw text', async () => {
+    const { signInWithGoogle } = await import('@core/firebase.js')
+
+    signInWithGoogle.mockRejectedValueOnce({ code: 'auth/x', message: '{not-json' })
+
+    const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
+
+    await el.handleGoogleLogin()
+
+    expect(el.errorMsg).toContain('{not-json')
+
+    el.remove()
+  })
+
   test('button click triggers login through the JSX onClick handler', async () => {
     const el = mount(CMS_TAGS.VIEW_ADMIN_LOGIN)
 
