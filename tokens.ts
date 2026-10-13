@@ -98,6 +98,7 @@ export const CMS_LANG_NODES = Object.freeze([
   'pages/GDPR',
   'pages/privacy-policy',
   'pages/terms-of-use',
+  'pages/license',
   'pages/not-found',
   'pages/earth-playground',
   'slugs',
