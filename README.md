@@ -65,6 +65,23 @@ site's exact CDN naming (`-mozjpg*`, `.mp4-scaled*`, MSSIM blur-up variants).
 | `files.ts`                                        | Recursive drop/input collection (generator-based traversal) + byte formatting.                                  |
 | `events.ts`, `render.tsx`, `consts.ts`, `exts.ts` | Wiring, phase-switched templates, job phases/poll cadence, accepted extensions (shared with the node pipeline). |
 
+### Required external tools (per OS)
+
+The converter shells out to three tools; missing ones surface in the tab's
+tools panel (`GET /api/media-convert/tools`) with a copy/paste install command,
+and `yarn setup` prints the same hints before you ever open the CMS.
+
+| OS               | ffmpeg / ffprobe                     | ImageMagick                                      | mozjpeg / cjpeg                            |
+| ---------------- | ------------------------------------ | ------------------------------------------------ | ------------------------------------------ |
+| Debian/Ubuntu    | `sudo apt-get install ffmpeg`        | `sudo apt-get install imagemagick`               | `sudo apt-get install libjpeg-turbo-progs` |
+| Fedora/RHEL      | `sudo dnf install ffmpeg`            | `sudo dnf install ImageMagick`                   | `sudo dnf install libjpeg-turbo-utils`     |
+| macOS (brew)     | `brew install ffmpeg`                | `brew install imagemagick`                       | `brew install mozjpeg`                     |
+| Windows (winget) | `winget install -e --id Gyan.FFmpeg` | `winget install -e --id ImageMagick.ImageMagick` | bundled mozjpeg via `npm` optional dep     |
+| Windows (choco)  | `choco install ffmpeg`               | `choco install imagemagick`                      | `choco install mozjpeg`                    |
+
+On Windows the converter calls `magick` (not `convert`); on macOS/Linux it calls
+`convert`. PATH must be refreshed — restart the dev server after installing.
+
 ## `dev/` — offline development
 
 | File                   | What it does                                                                                                                                                                                 |
