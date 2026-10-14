@@ -7,11 +7,7 @@
   "exports": {
     ".": "./index.ts"
   },
-  "sideEffects": [
-    "**/*.scss",
-    "**/views/**",
-    "**/components/**"
-  ],
+  "sideEffects": true,
   "scripts": {
     "dev": "vite --port 5174",
     "build": "vite build",
