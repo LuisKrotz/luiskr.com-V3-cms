@@ -17,6 +17,7 @@ import {
   renderDeployInfo,
   renderLighthouse,
   renderCoverage,
+  renderBundle,
   renderAxe,
   renderSnyk,
   renderConsoleScan,
@@ -26,6 +27,7 @@ import {
 } from './render.js'
 import type {
   AxeReport,
+  BundleStatsReport,
   ConsoleScanReport,
   CoverageReport,
   DeployFetchState,
@@ -43,6 +45,7 @@ export class CmsDeployInfo extends BaseComponent {
   index: DeployIndex | null = null // deploy-info manifest (file names + generatedAt + commit)
   lighthouse: LighthouseReport | null = null // lighthouse report JSON
   coverage: CoverageReport | null = null // jest coverage-summary JSON
+  bundle: BundleStatsReport | null = null // dist/ bundle inventory (js/css/html/wasm sizes)
   axe: AxeReport | null = null // axe-scan report JSON
   snyk: SnykReport | null = null // snyk/yarn-audit report JSON
   consoleScan: ConsoleScanReport | null = null // console-scan report JSON
@@ -88,6 +91,12 @@ export class CmsDeployInfo extends BaseComponent {
 
   _renderCoverage() {
     return renderCoverage(this)
+  }
+
+  /** Renders the bundle inventory (per-type sizes, tiers, wasm crates). */
+
+  _renderBundle() {
+    return renderBundle(this)
   }
 
   /** Renders the axe-core accessibility scan (violations grouped by surface). */

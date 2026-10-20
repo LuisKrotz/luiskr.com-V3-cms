@@ -6,6 +6,7 @@
 
 import type {
   AxeReport,
+  BundleStatsReport,
   ConsoleScanReport,
   CoverageReport,
   DeployIndex,
@@ -47,9 +48,10 @@ export async function loadReports(host: CmsDeployInfo): Promise<void> {
 
   host.index = index
 
-  const [lighthouse, coverage, axe, snyk, consoleScan] = await Promise.all([
+  const [lighthouse, coverage, bundle, axe, snyk, consoleScan] = await Promise.all([
     index.files?.lighthouse ? fetchJson(`${DEPLOY_INFO_BASE}/${index.files.lighthouse}`) : null,
     index.files?.coverage ? fetchJson(`${DEPLOY_INFO_BASE}/${index.files.coverage}`) : null,
+    index.files?.bundle ? fetchJson(`${DEPLOY_INFO_BASE}/${index.files.bundle}`) : null,
     index.files?.axe ? fetchJson(`${DEPLOY_INFO_BASE}/${index.files.axe}`) : null,
     index.files?.snyk ? fetchJson(`${DEPLOY_INFO_BASE}/${index.files.snyk}`) : null,
     index.files?.consoleScan ? fetchJson(`${DEPLOY_INFO_BASE}/${index.files.consoleScan}`) : null,
@@ -57,6 +59,7 @@ export async function loadReports(host: CmsDeployInfo): Promise<void> {
 
   host.lighthouse = lighthouse as LighthouseReport | null
   host.coverage = coverage as CoverageReport | null
+  host.bundle = bundle as BundleStatsReport | null
   host.axe = axe as AxeReport | null
   host.snyk = snyk as SnykReport | null
   host.consoleScan = consoleScan as ConsoleScanReport | null

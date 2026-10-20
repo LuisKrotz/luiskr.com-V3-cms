@@ -128,6 +128,7 @@ describe('CmsDeployInfo', () => {
       files: {
         lighthouse: 'lighthouse-summary.json',
         coverage: 'coverage-summary.json',
+        bundle: 'bundle-stats.json',
         axe: 'axe-report.json',
         snyk: 'snyk-report.json',
         consoleScan: 'console-scan.json',
@@ -136,6 +137,38 @@ describe('CmsDeployInfo', () => {
     const payloads = {
       'lighthouse-summary.json': { urls: [{ url: '/', scores: { performance: 0.95 } }] },
       'coverage-summary.json': { total: { lines: { covered: 9, total: 10, pct: 90 } } },
+      'bundle-stats.json': {
+        generatedAt: 'now',
+        totals: {
+          js: { files: 213, bytes: 12833358, unminified: 17613678, gzip: 3212416, brotli: 2671006 },
+          css: { files: 4, bytes: 67263, unminified: 101158, gzip: 15066, brotli: 13305 },
+          html: { files: 17926, bytes: 1023193074, gzip: 179413429, brotli: 146712747 },
+          wasm: { files: 42, bytes: 580051 },
+          assets: { files: 7793, bytes: 262611919 },
+        },
+        tiers: [
+          {
+            name: 'es2026',
+            js: {
+              files: 213,
+              bytes: 12833358,
+              unminified: 17613678,
+              gzip: 3212416,
+              brotli: 2671006,
+            },
+            css: { files: 4, bytes: 67263, unminified: 101158, gzip: 15066, brotli: 13305 },
+            misc: { files: 0, bytes: 0 },
+            largest: [{ file: 'v/es2026/assets/js/elk-x.js', bytes: 1497225 }],
+          },
+        ],
+        wasm: [{ crate: 'burn', files: 4, wasmBytes: 53891, jsBytes: 34847, jsFiles: 1 }],
+        html: {
+          files: 17926,
+          bytes: 1023193074,
+          byDir: [{ dir: 'docs', files: 6922, bytes: 303395746 }],
+        },
+        largest: [{ file: 'v/ie/assets/js/index-x.js', bytes: 9755412 }],
+      },
       'axe-report.json': { totals: { violations: 0 }, surfaces: [] },
       'snyk-report.json': { scanner: 'snyk', totals: { total: 0 }, vulnerabilities: [] },
       'console-scan.json': { totals: { callsites: 5 }, violations: [] },
@@ -150,9 +183,11 @@ describe('CmsDeployInfo', () => {
     const el = await mount(CMS_TAGS.CMS_DEPLOY_INFO)
     expect(el._fetchState).toBe('ready')
     expect(el.axe).not.toBeNull()
+    expect(el.bundle).not.toBeNull()
     expect(el.snyk).not.toBeNull()
     expect(el.consoleScan).not.toBeNull()
     expect(el.shadowRoot.innerHTML).toContain('Accessibility Scan')
+    expect(el.shadowRoot.innerHTML).toContain('Bundle')
     expect(el.shadowRoot.innerHTML).toContain('Dependency Scan')
     expect(el.shadowRoot.innerHTML).toContain('Console Usage Scan')
 

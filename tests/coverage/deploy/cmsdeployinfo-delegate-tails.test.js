@@ -27,6 +27,7 @@ describe('CmsDeployInfo delegate tails', () => {
 
     el.lighthouse = { urls: [{ url: 'u', scores: { performance: 0.5 } }] }
     el.coverage = { total: {} }
+    el.bundle = { totals: {} }
     el.axe = { violations: [] }
     el.snyk = {}
     el.consoleScan = {}
@@ -36,6 +37,7 @@ describe('CmsDeployInfo delegate tails', () => {
     expect(el._renderLighthouse()).toBeTruthy()
     expect(el._renderScores({ performance: 0.9 })).toBeTruthy()
     expect(el._renderCoverage()).toBeTruthy()
+    expect(el._renderBundle()).toBeTruthy()
     expect(el._renderAxe()).toBeTruthy()
     expect(el._renderSnyk()).toBeTruthy()
     expect(el._renderConsoleScan()).toBeTruthy()

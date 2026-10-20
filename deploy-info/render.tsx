@@ -9,6 +9,7 @@ import { TYPE_STRINGS } from '@core/tokens/strings/types.js'
 import { h } from '@core/jsx.js'
 import { DEPLOY_INFO_BASE } from './data.js'
 import type { CmsDeployInfo } from './CmsDeployInfo.js'
+import type { BundleBucket, BundleStatsReport } from './types.js'
 import { CMS_CARD_CLASSES, CMS_DEPLOY_CLASSES, CMS_FORM_CLASSES } from '@cms/tokens.js'
 
 // Lighthouse-style thresholds: ≥0.9 renders green, ≥0.5 amber, below red
@@ -231,6 +232,181 @@ export const renderSnyk = (host: CmsDeployInfo) => {
   )
 }
 
+/** Byte-size units for the bundle tables — KB/MB/GB with one decimal. */
+const BYTE_UNITS = ['B', 'KB', 'MB', 'GB']
+
+/**
+ * Formats a byte count as a compact human size (B/KB/MB/GB, one
+ * decimal past the byte unit); non-numbers render an em-dash.
+ * @param {unknown} value Byte count from the bundle-stats report.
+ * @returns {string} The formatted size.
+ */
+export const fmtBytes = (value: unknown): string => {
+  if (typeof value !== TYPE_STRINGS.NUMBER) return CHAR_STRINGS.EM_DASH
+
+  let n = value as number
+  let unit = 0
+
+  while (n >= 1024 && unit < BYTE_UNITS.length - 1) {
+    n /= 1024
+    unit += 1
+  }
+
+  return `${unit ? n.toFixed(1) : Math.round(n)} ${BYTE_UNITS[unit]}`
+}
+
+/** Bundle-rollup row order — the file-type totals in display order. */
+const BUNDLE_TOTAL_KEYS: Array<[string, keyof NonNullable<BundleStatsReport['totals']>]> = [
+  ['JavaScript', 'js'],
+  ['CSS', 'css'],
+  ['HTML', 'html'],
+  ['Wasm', 'wasm'],
+  ['Other assets', 'assets'],
+]
+
+/** One size row for a bucket — files, minified, unminified, gzip, brotli. */
+const bundleRow = (label: string, bucket: BundleBucket | undefined) => (
+  <tr>
+    <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{label}</td>
+    <td>{bucket?.files ?? CHAR_STRINGS.EM_DASH}</td>
+    <td>{fmtBytes(bucket?.bytes)}</td>
+    <td>{fmtBytes(bucket?.unminified)}</td>
+    <td>{fmtBytes(bucket?.gzip)}</td>
+    <td>{fmtBytes(bucket?.brotli)}</td>
+  </tr>
+)
+
+/** Renders the post-build bundle inventory (emitted sizes per type, tier, crate). */
+export const renderBundle = (host: CmsDeployInfo) => {
+  if (!host.bundle?.totals) {
+    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No bundle stats in the last deploy bundle.</p>
+  }
+
+  const b = host.bundle
+  const totals = b.totals || {}
+  const tiers = b.tiers || []
+  const crates = b.wasm || []
+  const largest = b.largest || []
+  const byDir = b.html?.byDir || []
+
+  return (
+    <div>
+      <h4 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Totals (all emitted output)</h4>
+      <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Files</th>
+            <th>Minified</th>
+            <th>Unminified</th>
+            <th>Gzip</th>
+            <th>Brotli</th>
+          </tr>
+        </thead>
+        <tbody>{BUNDLE_TOTAL_KEYS.map(([label, key]) => bundleRow(label, totals[key]))}</tbody>
+      </table>
+
+      <h4 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Per engine tier</h4>
+      <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>JS files</th>
+            <th>JS min</th>
+            <th>JS unmin</th>
+            <th>JS br</th>
+            <th>CSS min</th>
+            <th>CSS unmin</th>
+            <th>CSS br</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tiers.map((t) => (
+            <tr>
+              <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{t.name}</td>
+              <td>{t.js?.files ?? CHAR_STRINGS.EM_DASH}</td>
+              <td>{fmtBytes(t.js?.bytes)}</td>
+              <td>{fmtBytes(t.js?.unminified)}</td>
+              <td>{fmtBytes(t.js?.brotli)}</td>
+              <td>{fmtBytes(t.css?.bytes)}</td>
+              <td>{fmtBytes(t.css?.unminified)}</td>
+              <td>{fmtBytes(t.css?.brotli)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h4 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>WASM artifacts</h4>
+      <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+        <thead>
+          <tr>
+            <th>Crate</th>
+            <th>Files</th>
+            <th>.wasm</th>
+            <th>JS glue</th>
+          </tr>
+        </thead>
+        <tbody>
+          {crates.map((c) => (
+            <tr>
+              <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{c.crate}</td>
+              <td>{c.files ?? CHAR_STRINGS.EM_DASH}</td>
+              <td>{fmtBytes(c.wasmBytes)}</td>
+              <td>{fmtBytes(c.jsBytes)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {byDir.length ? (
+        <div>
+          <h4 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Prerendered HTML by directory</h4>
+          <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+            <thead>
+              <tr>
+                <th>Directory</th>
+                <th>Pages</th>
+                <th>Bytes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {byDir.map((d) => (
+                <tr>
+                  <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{d.dir}</td>
+                  <td>{d.files}</td>
+                  <td>{fmtBytes(d.bytes)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+
+      {largest.length ? (
+        <div>
+          <h4 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Largest emitted chunks</h4>
+          <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Minified</th>
+              </tr>
+            </thead>
+            <tbody>
+              {largest.map((f) => (
+                <tr>
+                  <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{f.file}</td>
+                  <td>{fmtBytes(f.bytes)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 /** Renders the console.* usage scan (debug-leftover policy). */
 export const renderConsoleScan = (host: CmsDeployInfo) => {
   if (!host.consoleScan) {
@@ -309,6 +485,9 @@ export const renderDeployInfo = (host: CmsDeployInfo) => {
 
       <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Jest Coverage</h3>
       {renderCoverage(host)}
+
+      <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Bundle (last build)</h3>
+      {renderBundle(host)}
 
       <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Accessibility Scan (axe-core)</h3>
       {renderAxe(host)}

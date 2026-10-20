@@ -76,6 +76,63 @@ export interface ConsoleScanReport {
 }
 
 /**
+ * One file-type rollup in the bundle-stats report — `bytes` is the
+ * emitted (minified) size, `unminified` the pre-minification source
+ * bytes recovered from sourcemap sourcesContent, `gzip`/`brotli` the
+ * compressed wire sizes.
+ */
+export interface BundleBucket {
+  files?: number
+  bytes?: number
+  unminified?: number
+  gzip?: number
+  brotli?: number
+}
+
+/**
+ * One ES-target tier row — the js/css/misc buckets emitted under
+ * dist/v/<tier>/ plus that tier's ten heaviest chunks.
+ */
+export interface BundleTier {
+  name?: string
+  js?: BundleBucket
+  css?: BundleBucket
+  misc?: BundleBucket
+  largest?: Array<{ file?: string; bytes?: number }>
+}
+
+/** One wasm artifact crate row — .wasm module bytes + .js glue bytes. */
+export interface WasmCrateStats {
+  crate?: string
+  files?: number
+  wasmBytes?: number
+  jsBytes?: number
+  jsFiles?: number
+}
+
+/**
+ * Shape of the bundle-stats report — the post-build dist/ inventory:
+ * file-type totals (js/css/html/wasm/assets) with minified vs
+ * unminified vs compressed bytes, per-tier rows, the per-crate wasm
+ * table, prerendered-HTML grouped by top-level directory, and the
+ * heaviest emitted chunks overall.
+ */
+export interface BundleStatsReport {
+  generatedAt?: string
+  totals?: {
+    js?: BundleBucket
+    css?: BundleBucket
+    html?: BundleBucket
+    wasm?: BundleBucket
+    assets?: BundleBucket
+  }
+  tiers?: BundleTier[]
+  wasm?: WasmCrateStats[]
+  html?: BundleBucket & { byDir?: Array<{ dir?: string; files?: number; bytes?: number }> }
+  largest?: Array<{ file?: string; bytes?: number }>
+}
+
+/**
  * Tri-state of the Deploy Info fetch: still `loading`, the bundle
  * is `missing` (no deploy-info/ in this build), or the index parsed `ready`.
  */
