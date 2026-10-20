@@ -8,6 +8,7 @@ import type { CmsPortfolioList } from './CmsPortfolioList.js'
 import type { PortfolioItem } from './types.js'
 import { CDN_URLS } from '@core/tokens/media/urls.js'
 import { COVER_DIMENSIONS, MOSAIC_DIMENSIONS } from '@core/tokens/media/dimensions.js'
+import { encodeMediaUrl } from '@core/utils/media.js'
 
 /**
  * Gets image preview.
@@ -17,7 +18,7 @@ import { COVER_DIMENSIONS, MOSAIC_DIMENSIONS } from '@core/tokens/media/dimensio
 export function getImagePreview(imgName: string | undefined): string {
   if (!imgName) return CHAR_STRINGS.EMPTY
   if (imgName.startsWith('http')) return imgName
-  return `${CDN_URLS.CDN_BASE}${DB_PATHS.COVERS}${imgName}.jpg`
+  return encodeMediaUrl(`${CDN_URLS.CDN_BASE}${DB_PATHS.COVERS}${imgName}.jpg`)
 }
 
 /**

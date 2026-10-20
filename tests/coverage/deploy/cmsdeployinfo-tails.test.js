@@ -97,8 +97,14 @@ describe('CmsDeployInfo tails', () => {
           misc: {},
           largest: [{ file: 'v/es2026/assets/js/elk-x.js', bytes: 1497225 }],
         },
+        // Tier without a `js` bucket — the `t.js?.files ?? em-dash` arm.
+        { name: 'legacy', css: { files: 1, bytes: 10 } },
       ],
-      wasm: [{ crate: 'burn', files: 4, wasmBytes: 53891, jsBytes: 34847, jsFiles: 1 }],
+      wasm: [
+        { crate: 'burn', files: 4, wasmBytes: 53891, jsBytes: 34847, jsFiles: 1 },
+        // Crate without `files` — the `c.files ?? em-dash` arm.
+        { crate: 'mdl', wasmBytes: 1, jsBytes: 2 },
+      ],
       html: {
         files: 17926,
         bytes: 1023193074,

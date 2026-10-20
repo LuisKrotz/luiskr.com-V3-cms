@@ -278,12 +278,13 @@ const bundleRow = (label: string, bucket: BundleBucket | undefined) => (
 
 /** Renders the post-build bundle inventory (emitted sizes per type, tier, crate). */
 export const renderBundle = (host: CmsDeployInfo) => {
-  if (!host.bundle?.totals) {
+  const b = host.bundle
+
+  if (!b?.totals) {
     return <p className={CMS_FORM_CLASSES.CMS_HINT}>No bundle stats in the last deploy bundle.</p>
   }
 
-  const b = host.bundle
-  const totals = b.totals || {}
+  const totals = b.totals
   const tiers = b.tiers || []
   const crates = b.wasm || []
   const largest = b.largest || []

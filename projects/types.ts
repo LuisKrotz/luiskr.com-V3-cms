@@ -5,6 +5,7 @@
 import { MEDIA } from '@core/tokens/media/suffixes.js'
 import { CDN_URLS } from '@core/tokens/media/urls.js'
 import { COVER_DIMENSIONS } from '@core/tokens/media/dimensions.js'
+import { encodeMediaUrl } from '@core/utils/media.js'
 
 /** One media row in the CMS project editor. */
 export interface CmsMediaItem {
@@ -44,7 +45,7 @@ export interface CmsProject {
  * @returns The full preview URL.
  */
 export function gcs(filename: string, isVideo?: boolean): string {
-  const base = `${CDN_URLS.CDN_BASE}${filename}`
+  const base = encodeMediaUrl(`${CDN_URLS.CDN_BASE}${filename}`)
 
   return isVideo
     ? `${base}${MEDIA.VIDEO_THUMB_EXT}`
