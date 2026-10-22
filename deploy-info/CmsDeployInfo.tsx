@@ -1,6 +1,6 @@
 /**
  * @file CmsDeployInfo.js
- * @description <cms-deploy-info> — the Deploy Info tab: renders the
+ * @description <cms-deploy-info> — the Build tab: renders the
  * quality bundle from dist/deploy-info/ (written by scripts/build/deploy-info.mjs
  * at build time) — Lighthouse scores per URL, Jest coverage totals,
  * axe-core violations, the IBM Equal Access full-site scan summary,
@@ -16,6 +16,7 @@ import { BaseComponent } from '@core/Component.js'
 import { loadReports } from './data.js'
 import {
   renderDeployInfo,
+  renderBuildMeta,
   renderLighthouse,
   renderCoverage,
   renderBundle,
@@ -77,6 +78,12 @@ export class CmsDeployInfo extends BaseComponent {
 
   _pct(value: unknown): string {
     return pct(value)
+  }
+
+  /** Renders the last-build manifest metadata (timestamp, commit, report inventory). */
+
+  _renderBuildMeta() {
+    return renderBuildMeta(this)
   }
 
   /** Renders the Lighthouse section (scores + failing audits). */

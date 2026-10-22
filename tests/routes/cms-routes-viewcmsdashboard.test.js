@@ -74,7 +74,7 @@ describe('ViewCmsDashboard', () => {
       [CMS_TABS.FOOTER]: CMS_TAGS.CMS_FOOTER_EDITOR,
       [CMS_TABS.PLAYGROUND]: CMS_TAGS.CMS_PLAYGROUND_EDITOR,
       [CMS_TABS.LANGUAGES]: CMS_TAGS.CMS_LANG_EDITOR,
-      [CMS_TABS.DEPLOY]: CMS_TAGS.CMS_DEPLOY_INFO,
+      [CMS_TABS.BUILD]: CMS_TAGS.CMS_DEPLOY_INFO,
     }
 
     Object.entries(expected).forEach(([tab, tag]) => {

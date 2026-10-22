@@ -31,7 +31,7 @@ export const CMS_TABS = Object.freeze({
   PLAYGROUND: 'playground',
   LANGUAGES: 'languages',
   MEDIA: 'media',
-  DEPLOY: 'deploy',
+  BUILD: 'build',
 })
 
 /**

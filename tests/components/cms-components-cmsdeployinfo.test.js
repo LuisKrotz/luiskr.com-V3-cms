@@ -137,7 +137,13 @@ describe('CmsDeployInfo', () => {
     }
     const payloads = {
       'lighthouse-summary.json': { urls: [{ url: '/', scores: { performance: 0.95 } }] },
-      'coverage-summary.json': { total: { lines: { covered: 9, total: 10, pct: 90 } } },
+      'coverage-summary.json': {
+        total: { lines: { covered: 9, total: 10, pct: 90 } },
+        modules: {
+          website: { lines: { covered: 9, total: 10, pct: 90 } },
+          core: {},
+        },
+      },
       'bundle-stats.json': {
         generatedAt: 'now',
         totals: {
@@ -216,6 +222,9 @@ describe('CmsDeployInfo', () => {
     expect(el.bundle).not.toBeNull()
     expect(el.snyk).not.toBeNull()
     expect(el.consoleScan).not.toBeNull()
+    expect(el.shadowRoot.innerHTML).toContain('Last build')
+    expect(el.shadowRoot.innerHTML).toContain('lighthouse-summary.json')
+    expect(el.shadowRoot.innerHTML).toContain('Per module')
     expect(el.shadowRoot.innerHTML).toContain('Accessibility Scan')
     expect(el.shadowRoot.innerHTML).toContain('IBM Equal Access')
     expect(el.shadowRoot.innerHTML).toContain('text_contrast_sufficient')

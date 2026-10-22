@@ -1,5 +1,5 @@
 /**
- * @file cms/deploy-info/types.ts — report shapes for the Deploy Info tab.
+ * @file cms/deploy-info/types.ts — report shapes for the Build tab.
  * Mirrors the JSON written into dist/deploy-info/ by deploy-info.mjs.
  */
 /* istanbul ignore file */
@@ -24,12 +24,14 @@ export interface LighthouseReport {
 }
 
 /**
- * Shape of the Jest coverage summary consumed by the Deploy Info tab —
+ * Shape of the Jest coverage summary consumed by the Build tab —
  * `total` holds per-metric {covered,total,pct} aggregates (statements, branches,
- * functions, lines).
+ * functions, lines); `modules` carries the same per-metric shape keyed by
+ * module workspace name so the tab can show each module's coverage.
  */
 export interface CoverageReport {
   total?: Record<string, { covered?: number; total?: number; pct?: number }>
+  modules?: Record<string, Record<string, { covered?: number; total?: number; pct?: number }>>
 }
 
 /**
@@ -164,7 +166,7 @@ export interface BundleStatsReport {
 }
 
 /**
- * Tri-state of the Deploy Info fetch: still `loading`, the bundle
+ * Tri-state of the Build tab fetch: still `loading`, the bundle
  * is `missing` (no deploy-info/ in this build), or the index parsed `ready`.
  */
 export type DeployFetchState = 'loading' | 'missing' | 'ready'
