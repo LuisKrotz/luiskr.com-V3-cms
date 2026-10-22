@@ -47,6 +47,37 @@ export interface AxeReport {
 }
 
 /**
+ * Shape of the IBM Equal Access full-site scan summary — written by
+ * deploy-info.mjs from a11y-checker.json. `rules` aggregates findings by
+ * rule+level (count + page coverage + one example message); `routes`
+ * lists only the routes carrying gated findings so the table stays short.
+ */
+export interface A11yReport {
+  generatedAt?: string
+  engine?: string
+  policy?: string
+  gatingLevels?: string[]
+  pages?: number
+  totals?: Record<string, number>
+  rules?: Array<{
+    level?: string
+    ruleId?: string
+    count?: number
+    pages?: number
+    message?: string
+  }>
+  routes?: Array<{
+    route?: string
+    violation?: number
+    potentialviolation?: number
+    recommendation?: number
+    manual?: number
+    gated?: number
+    error?: string
+  }>
+}
+
+/**
  * Shape of the security-scan report — `scanner` records whether snyk or
  * yarn audit produced it, `ok` the gate outcome, `vulnerabilities` the advisory
  * rows (acceptedRisk marks entries waived via security-exceptions.json).
