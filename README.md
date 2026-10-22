@@ -42,13 +42,15 @@ store and delegates to `data.ts` (Firebase I/O), `model.ts`/`sections.ts`
 | `playground-editor/CmsPlaygroundEditor.tsx` | Earth-playground labels, the `defaults` control sub-node (initial slider/toggle values the site merges), localized route slugs.        |
 | `lang/CmsLangEditor.tsx`                    | Raw JSON dictionary escape hatch — any `translations` node editable as formatted JSON per locale.                                      |
 
-## `deploy-info/` — the quality bundle viewer
+## `deploy-info/` — the Build tab's quality bundle viewer
 
-`<cms-deploy-info>` renders `dist/deploy-info/` (written by
-`shared/scripts/build/deploy-info.mjs` at build time): Lighthouse scores per URL,
-Jest coverage totals, axe-core violations, Snyk/yarn-audit vulnerabilities, and
-the console-* governance scan — grouped into a report wall with score chips.
-Each report degrades independently if missing.
+`<cms-deploy-info>` backs the **Build** tab — it renders `dist/deploy-info/`
+(written by `shared/scripts/build/deploy-info.mjs` at build time): the
+last-build manifest (timestamp, commit, bundled report inventory), Lighthouse
+scores per URL, Jest coverage totals + per-module rollup, bundle stats, axe-core
+violations, the IBM Equal Access scan, Snyk/yarn-audit vulnerabilities, and the
+console-* governance scan — grouped into a report wall with score chips. Each
+report degrades independently if missing.
 
 ## `media-convert/` — the localhost-only media pipeline
 

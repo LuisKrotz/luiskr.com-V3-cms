@@ -35,6 +35,7 @@ describe('CmsDeployInfo delegate tails', () => {
 
     expect(typeof el._scoreClass(0.9)).toBe('string')
     expect(typeof el._pct(0.5)).toBe('string')
+    expect(el._renderBuildMeta()).toBeTruthy()
     expect(el._renderLighthouse()).toBeTruthy()
     expect(el._renderScores({ performance: 0.9 })).toBeTruthy()
     expect(el._renderCoverage()).toBeTruthy()

@@ -221,7 +221,7 @@ describe('CmsDashboard branches', () => {
       CMS_TABS.PLAYGROUND,
       CMS_TABS.LANGUAGES,
       CMS_TABS.MEDIA,
-      CMS_TABS.DEPLOY,
+      CMS_TABS.BUILD,
       'unknown-tab',
     ]
 
@@ -297,7 +297,7 @@ describe('CmsDashboard branches', () => {
       CMS_TABS.PLAYGROUND,
       CMS_TABS.LANGUAGES,
       CMS_TABS.MEDIA,
-      CMS_TABS.DEPLOY,
+      CMS_TABS.BUILD,
     ]
 
     for (const tab of tabs) {

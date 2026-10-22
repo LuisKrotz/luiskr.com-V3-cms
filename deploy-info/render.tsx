@@ -1,7 +1,7 @@
 /**
- * @file cms/deploy-info/render.tsx — report-wall JSX for the Deploy
- * Info tab: score chips (Lighthouse thresholds), the five report
- * sections, and the loading/missing gates.
+ * @file cms/deploy-info/render.tsx — report-wall JSX for the Build
+ * tab: the last-build manifest metadata, score chips (Lighthouse
+ * thresholds), the report sections, and the loading/missing gates.
  */
 
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
@@ -58,9 +58,7 @@ export const renderScores = (scores: Record<string, number> | undefined) => {
 /** Renders the Lighthouse section (scores + failing audits). */
 export const renderLighthouse = (host: CmsDeployInfo) => {
   if (!host.lighthouse?.urls?.length) {
-    return (
-      <p className={CMS_FORM_CLASSES.CMS_HINT}>No Lighthouse data in the last deploy bundle.</p>
-    )
+    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No Lighthouse data in this build bundle.</p>
   }
 
   return (
@@ -86,48 +84,81 @@ export const renderLighthouse = (host: CmsDeployInfo) => {
   )
 }
 
-/** Renders the Jest coverage summary table. */
+/** Renders the Jest coverage summary table plus the per-module rollup. */
 export const renderCoverage = (host: CmsDeployInfo) => {
-  const total = host.coverage?.total
+  const report = host.coverage
 
-  if (!total) {
-    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No coverage data in the last deploy bundle.</p>
+  if (!report?.total) {
+    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No coverage data in this build bundle.</p>
   }
 
+  const total = report.total
+  const modules = Object.entries(report.modules || {})
+
   return (
-    <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
-      <thead>
-        <tr>
-          <th>Metric</th>
-          <th>Covered</th>
-          <th>Total</th>
-          <th>%</th>
-        </tr>
-      </thead>
-      <tbody>
-        {COVERAGE_KEYS.map((key) => (
+    <div>
+      <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+        <thead>
           <tr>
-            <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{key}</td>
-            <td>{total[key]?.covered ?? CHAR_STRINGS.EM_DASH}</td>
-            <td>{total[key]?.total ?? CHAR_STRINGS.EM_DASH}</td>
-            <td>
-              <span class={scoreClass((total[key]?.pct ?? 0) / 100)}>
-                {total[key]?.pct ?? CHAR_STRINGS.EM_DASH}
-              </span>
-            </td>
+            <th>Metric</th>
+            <th>Covered</th>
+            <th>Total</th>
+            <th>%</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {COVERAGE_KEYS.map((key) => (
+            <tr>
+              <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{key}</td>
+              <td>{total[key]?.covered ?? CHAR_STRINGS.EM_DASH}</td>
+              <td>{total[key]?.total ?? CHAR_STRINGS.EM_DASH}</td>
+              <td>
+                <span class={scoreClass((total[key]?.pct ?? 0) / 100)}>
+                  {total[key]?.pct ?? CHAR_STRINGS.EM_DASH}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {modules.length ? (
+        <div>
+          <h4 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Per module</h4>
+          <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+            <thead>
+              <tr>
+                <th>Module</th>
+                {COVERAGE_KEYS.map((key) => (
+                  <th>{key} %</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {modules.map(([name, row]) => (
+                <tr>
+                  <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{name}</td>
+                  {COVERAGE_KEYS.map((key) => (
+                    <td>
+                      <span class={scoreClass((row[key]?.pct ?? 0) / 100)}>
+                        {row[key]?.pct ?? CHAR_STRINGS.EM_DASH}
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </div>
   )
 }
 
 /** Renders the axe-core accessibility scan (violations grouped by surface). */
 export const renderAxe = (host: CmsDeployInfo) => {
   if (!host.axe) {
-    return (
-      <p className={CMS_FORM_CLASSES.CMS_HINT}>No accessibility scan in the last deploy bundle.</p>
-    )
+    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No accessibility scan in this build bundle.</p>
   }
 
   const t: Record<string, number> = host.axe.totals || {}
@@ -187,9 +218,7 @@ export const renderA11y = (host: CmsDeployInfo) => {
 
   if (!a) {
     return (
-      <p className={CMS_FORM_CLASSES.CMS_HINT}>
-        No IBM accessibility scan in the last deploy bundle.
-      </p>
+      <p className={CMS_FORM_CLASSES.CMS_HINT}>No IBM accessibility scan in this build bundle.</p>
     )
   }
 
@@ -270,9 +299,7 @@ export const renderA11y = (host: CmsDeployInfo) => {
 /** Renders the dependency vulnerability scan (Snyk or yarn-audit fallback). */
 export const renderSnyk = (host: CmsDeployInfo) => {
   if (!host.snyk) {
-    return (
-      <p className={CMS_FORM_CLASSES.CMS_HINT}>No dependency scan in the last deploy bundle.</p>
-    )
+    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No dependency scan in this build bundle.</p>
   }
 
   const t: Record<string, number> = host.snyk.totals || {}
@@ -371,7 +398,7 @@ export const renderBundle = (host: CmsDeployInfo) => {
   const b = host.bundle
 
   if (!b?.totals) {
-    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No bundle stats in the last deploy bundle.</p>
+    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No bundle stats in this build bundle.</p>
   }
 
   const totals = b.totals
@@ -501,7 +528,7 @@ export const renderBundle = (host: CmsDeployInfo) => {
 /** Renders the console.* usage scan (debug-leftover policy). */
 export const renderConsoleScan = (host: CmsDeployInfo) => {
   if (!host.consoleScan) {
-    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No console scan in the last deploy bundle.</p>
+    return <p className={CMS_FORM_CLASSES.CMS_HINT}>No console scan in this build bundle.</p>
   }
 
   const t: Record<string, number> = host.consoleScan.totals || {}
@@ -540,13 +567,50 @@ export const renderConsoleScan = (host: CmsDeployInfo) => {
   )
 }
 
-/** JSX template — loading/missing gates then the five-section report wall. */
+/**
+ * Renders the last-build manifest metadata — generation timestamp, commit
+ * sha, and the inventory of report files the bundle carries.
+ */
+export const renderBuildMeta = (host: CmsDeployInfo) => {
+  const files = Object.entries(host.index?.files || {})
+
+  return (
+    <div>
+      <p className={CMS_CARD_CLASSES.CMS_CARD_SUBTITLE}>
+        Generated {host.index?.generatedAt ?? CHAR_STRINGS.EM_DASH}
+        {host.index?.commit ? ` · commit ${host.index.commit}` : CHAR_STRINGS.EMPTY}
+      </p>
+      {files.length ? (
+        <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+          <thead>
+            <tr>
+              <th>Report</th>
+              <th>File</th>
+            </tr>
+          </thead>
+          <tbody>
+            {files.map(([name, file]) => (
+              <tr>
+                <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{name}</td>
+                <td>{file}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className={CMS_FORM_CLASSES.CMS_HINT}>No report files listed in the bundle manifest.</p>
+      )}
+    </div>
+  )
+}
+
+/** JSX template — loading/missing gates then the report wall. */
 export const renderDeployInfo = (host: CmsDeployInfo) => {
   if (host._fetchState === 'loading') {
     return (
       <section className={CMS_CARD_CLASSES.CMS_CARD}>
-        <h2 className={CMS_CARD_CLASSES.CMS_CARD_TITLE}>Deploy Info</h2>
-        <p className={CMS_FORM_CLASSES.CMS_HINT}>Loading last deploy bundle…</p>
+        <h2 className={CMS_CARD_CLASSES.CMS_CARD_TITLE}>Build</h2>
+        <p className={CMS_FORM_CLASSES.CMS_HINT}>Loading last build bundle…</p>
       </section>
     )
   }
@@ -554,10 +618,10 @@ export const renderDeployInfo = (host: CmsDeployInfo) => {
   if (host._fetchState === 'missing') {
     return (
       <section className={CMS_CARD_CLASSES.CMS_CARD}>
-        <h2 className={CMS_CARD_CLASSES.CMS_CARD_TITLE}>Deploy Info</h2>
+        <h2 className={CMS_CARD_CLASSES.CMS_CARD_TITLE}>Build</h2>
         <p className={CMS_FORM_CLASSES.CMS_HINT}>
-          No deploy-info bundle found at {DEPLOY_INFO_BASE}/ — run yarn test:lighthouse or yarn run
-          deploy:info after a build.
+          No build bundle found at {DEPLOY_INFO_BASE}/ — run yarn deploy:info (or yarn build) to
+          generate the quality reports.
         </p>
       </section>
     )
@@ -565,11 +629,10 @@ export const renderDeployInfo = (host: CmsDeployInfo) => {
 
   return (
     <section className={CMS_CARD_CLASSES.CMS_CARD}>
-      <h2 className={CMS_CARD_CLASSES.CMS_CARD_TITLE}>Deploy Info</h2>
-      <p className={CMS_CARD_CLASSES.CMS_CARD_SUBTITLE}>
-        Generated {host.index?.generatedAt}
-        {host.index?.commit ? ` · commit ${host.index.commit}` : CHAR_STRINGS.EMPTY}
-      </p>
+      <h2 className={CMS_CARD_CLASSES.CMS_CARD_TITLE}>Build</h2>
+
+      <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Last build</h3>
+      {renderBuildMeta(host)}
 
       <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Lighthouse (last run)</h3>
       {renderLighthouse(host)}

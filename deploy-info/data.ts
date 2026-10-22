@@ -1,6 +1,6 @@
 /**
- * @file cms/deploy-info/data.ts — fetch orchestration for the Deploy
- * Info tab: the manifest gates the bundle (missing → "run deploy:info"
+ * @file cms/deploy-info/data.ts — fetch orchestration for the Build
+ * tab: the manifest gates the bundle (missing → "run deploy:info"
  * hint), each report then degrades independently.
  */
 

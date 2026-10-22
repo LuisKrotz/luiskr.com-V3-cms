@@ -3,7 +3,7 @@
  * @description <view-cms-dashboard> — the authenticated CMS shell: header
  * (brand + user + logout), the tab strip routing between content editors
  * (portfolio, projects, about, footers, playground, languages, media
- * converter — localhost only — and deploy info), and the toast surface
+ * converter — localhost only — and the build reports wall), and the toast surface
  * that child editors notify via cms-notification events.
  */
 
@@ -137,7 +137,7 @@ export class ViewCmsDashboard extends BaseComponent {
     if (this.activeTab === CMS_TABS.PLAYGROUND) return <cms-playground-editor />
     if (this.activeTab === CMS_TABS.LANGUAGES) return <cms-lang-editor />
     if (this.activeTab === CMS_TABS.MEDIA && IS_LOCALHOST) return <cms-media-converter />
-    if (this.activeTab === CMS_TABS.DEPLOY) return <cms-deploy-info />
+    if (this.activeTab === CMS_TABS.BUILD) return <cms-deploy-info />
     return <cms-portfolio-list />
   }
 
@@ -222,11 +222,11 @@ export class ViewCmsDashboard extends BaseComponent {
             </button>
           ) : null}
           <button
-            className={`${CMS_DASHBOARD_CLASSES.CMS_TAB_BTN} ${this.activeTab === CMS_TABS.DEPLOY ? STATE_CLASSES.ACTIVE : ATTR_VALUES.EMPTY}`}
-            data-tab={CMS_TABS.DEPLOY}
+            className={`${CMS_DASHBOARD_CLASSES.CMS_TAB_BTN} ${this.activeTab === CMS_TABS.BUILD ? STATE_CLASSES.ACTIVE : ATTR_VALUES.EMPTY}`}
+            data-tab={CMS_TABS.BUILD}
             type={FORM_ATTRS.BUTTON}
           >
-            📊 Deploy Info
+            📊 Build
           </button>
         </nav>
 
