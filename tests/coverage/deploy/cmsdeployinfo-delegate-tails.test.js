@@ -31,6 +31,7 @@ describe('CmsDeployInfo delegate tails', () => {
     el.axe = { violations: [] }
     el.snyk = {}
     el.consoleScan = {}
+    el.a11y = {}
 
     expect(typeof el._scoreClass(0.9)).toBe('string')
     expect(typeof el._pct(0.5)).toBe('string')
@@ -39,8 +40,51 @@ describe('CmsDeployInfo delegate tails', () => {
     expect(el._renderCoverage()).toBeTruthy()
     expect(el._renderBundle()).toBeTruthy()
     expect(el._renderAxe()).toBeTruthy()
+    expect(el._renderA11y()).toBeTruthy()
     expect(el._renderSnyk()).toBeTruthy()
     expect(el._renderConsoleScan()).toBeTruthy()
+
+    el.remove()
+  })
+
+  test('a11y report renders populated totals, rule rollup, and flagged routes', async () => {
+    const el = document.createElement(CMS_TAGS.CMS_DEPLOY_INFO)
+
+    document.body.appendChild(el)
+    await flush()
+
+    el.a11y = {
+      engine: 'ibm-checker',
+      pages: 12,
+      totals: {
+        violation: 1,
+        potentialviolation: 2,
+        recommendation: 3,
+        manual: 4,
+        gated: 2,
+        errors: 1,
+      },
+      rules: [
+        { level: 'violation', ruleId: 'r1', count: 1, pages: 1, message: 'm1' },
+        { level: 'potentialviolation', ruleId: 'r2', count: 2, pages: 1, message: 'm2' },
+        { level: 'recommendation', ruleId: 'r3', count: 3, pages: 2, message: 'm3' },
+      ],
+      routes: [
+        {
+          route: '/',
+          violation: 1,
+          potentialviolation: 1,
+          recommendation: 1,
+          gated: 1,
+          error: 'scan failed mid-route',
+        },
+        { route: '/about/' },
+      ],
+    }
+
+    const html = el._renderA11y()
+
+    expect(html).toBeTruthy()
 
     el.remove()
   })
