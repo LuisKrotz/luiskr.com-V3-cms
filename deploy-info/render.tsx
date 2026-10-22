@@ -177,6 +177,96 @@ export const renderAxe = (host: CmsDeployInfo) => {
   )
 }
 
+/** Maps an IBM finding level to the red/amber/green chip (violations red, potentials amber). */
+const a11yLevelClass = (level: unknown): string =>
+  scoreClass(level === 'violation' ? 0 : level === 'potentialviolation' ? 0.6 : 1)
+
+/** Renders the IBM Equal Access full-site scan — totals, per-rule rollup, flagged routes. */
+export const renderA11y = (host: CmsDeployInfo) => {
+  const a = host.a11y
+
+  if (!a) {
+    return (
+      <p className={CMS_FORM_CLASSES.CMS_HINT}>
+        No IBM accessibility scan in the last deploy bundle.
+      </p>
+    )
+  }
+
+  const t: Record<string, number> = a.totals || {}
+  const rules = a.rules || []
+  const routes = a.routes || []
+
+  return (
+    <div>
+      <p className={CMS_CARD_CLASSES.CMS_CARD_SUBTITLE}>
+        {a.engine} · {a.pages ?? 0} routes — {t.violation ?? 0} violations,{' '}
+        {t.potentialviolation ?? 0} potential, {t.recommendation ?? 0} recommendations,{' '}
+        {t.manual ?? 0} manual · {t.gated ?? 0} unreviewed
+        {t.errors ? ` · ${t.errors} scan errors` : CHAR_STRINGS.EMPTY}
+        {t.gated ? ' · gate FAILED' : ' · gate passed'}
+      </p>
+      {rules.length ? (
+        <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Rule</th>
+              <th>Findings</th>
+              <th>Pages</th>
+              <th>Check</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rules.map((r) => (
+              <tr>
+                <td>
+                  <span class={a11yLevelClass(r.level)}>{r.level}</span>
+                </td>
+                <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{r.ruleId}</td>
+                <td>{r.count}</td>
+                <td>{r.pages}</td>
+                <td>{r.message}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className={CMS_FORM_CLASSES.CMS_HINT}>Zero findings on all scanned routes.</p>
+      )}
+      {routes.length ? (
+        <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Viol</th>
+              <th>Potential</th>
+              <th>Rec</th>
+              <th>Unreviewed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {routes.map((r) => (
+              <tr>
+                <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{r.route}</td>
+                <td>{r.violation ?? CHAR_STRINGS.EM_DASH}</td>
+                <td>{r.potentialviolation ?? CHAR_STRINGS.EM_DASH}</td>
+                <td>{r.recommendation ?? CHAR_STRINGS.EM_DASH}</td>
+                <td>
+                  <span class={scoreClass(r.gated ? 0 : 1)}>{r.gated ?? 0}</span>
+                  {r.error ? ` — ${r.error}` : CHAR_STRINGS.EMPTY}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className={CMS_FORM_CLASSES.CMS_HINT}>Every scanned route is clean of gated findings.</p>
+      )}
+    </div>
+  )
+}
+
 /** Renders the dependency vulnerability scan (Snyk or yarn-audit fallback). */
 export const renderSnyk = (host: CmsDeployInfo) => {
   if (!host.snyk) {
@@ -492,6 +582,11 @@ export const renderDeployInfo = (host: CmsDeployInfo) => {
 
       <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Accessibility Scan (axe-core)</h3>
       {renderAxe(host)}
+
+      <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>
+        Accessibility Scan (IBM Equal Access)
+      </h3>
+      {renderA11y(host)}
 
       <h3 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Dependency Scan</h3>
       {renderSnyk(host)}

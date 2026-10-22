@@ -185,7 +185,7 @@ export class ViewAdminLogin extends BaseComponent {
 
   override render() {
     return (
-      <div className={CMS_ADMIN_CLASSES.ADMIN_LOGIN_WRAPPER}>
+      <main className={CMS_ADMIN_CLASSES.ADMIN_LOGIN_WRAPPER}>
         <div className={CMS_ADMIN_CLASSES.ADMIN_LOGIN_CARD}>
           <h1 className={CMS_ADMIN_CLASSES.ADMIN_TITLE}>Luis Krötz CMS</h1>
           <p className={CMS_ADMIN_CLASSES.ADMIN_SUBTITLE}>
@@ -203,6 +203,7 @@ export class ViewAdminLogin extends BaseComponent {
               viewBox="0 0 24 24"
               width="20"
               height="20"
+              aria-hidden="true"
             >
               <path
                 fill="#4285F4"
@@ -228,7 +229,7 @@ export class ViewAdminLogin extends BaseComponent {
             <div className={CMS_ADMIN_CLASSES.ADMIN_ERROR_MSG}>{this.errorMsg}</div>
           ) : null}
         </div>
-      </div>
+      </main>
     )
   }
 }

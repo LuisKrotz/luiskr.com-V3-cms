@@ -130,6 +130,7 @@ describe('CmsDeployInfo', () => {
         coverage: 'coverage-summary.json',
         bundle: 'bundle-stats.json',
         axe: 'axe-report.json',
+        a11y: 'a11y-summary.json',
         snyk: 'snyk-report.json',
         consoleScan: 'console-scan.json',
       },
@@ -170,6 +171,34 @@ describe('CmsDeployInfo', () => {
         largest: [{ file: 'v/ie/assets/js/index-x.js', bytes: 9755412 }],
       },
       'axe-report.json': { totals: { violations: 0 }, surfaces: [] },
+      'a11y-summary.json': {
+        engine: 'accessibility-checker (IBM Equal Access)',
+        pages: 3,
+        totals: {
+          violation: 1,
+          potentialviolation: 4,
+          recommendation: 2,
+          manual: 1,
+          gated: 3,
+          errors: 1,
+        },
+        rules: [
+          {
+            level: 'violation',
+            ruleId: 'text_contrast_sufficient',
+            count: 1,
+            pages: 1,
+            message: 'contrast',
+          },
+          { level: 'potentialviolation', ruleId: 'style_focus_visible', count: 4, pages: 2 },
+          { level: 'recommendation', ruleId: 'aria_role_redundant', count: 2, pages: 2 },
+        ],
+        routes: [
+          { route: '/about/', violation: 1, gated: 3 },
+          { route: '/contact/', potentialviolation: 4, error: 'boom' },
+          { route: '/docs/', recommendation: 2 },
+        ],
+      },
       'snyk-report.json': { scanner: 'snyk', totals: { total: 0 }, vulnerabilities: [] },
       'console-scan.json': { totals: { callsites: 5 }, violations: [] },
     }
@@ -183,13 +212,55 @@ describe('CmsDeployInfo', () => {
     const el = await mount(CMS_TAGS.CMS_DEPLOY_INFO)
     expect(el._fetchState).toBe('ready')
     expect(el.axe).not.toBeNull()
+    expect(el.a11y).not.toBeNull()
     expect(el.bundle).not.toBeNull()
     expect(el.snyk).not.toBeNull()
     expect(el.consoleScan).not.toBeNull()
     expect(el.shadowRoot.innerHTML).toContain('Accessibility Scan')
+    expect(el.shadowRoot.innerHTML).toContain('IBM Equal Access')
+    expect(el.shadowRoot.innerHTML).toContain('text_contrast_sufficient')
+    expect(el.shadowRoot.innerHTML).toContain('gate FAILED')
     expect(el.shadowRoot.innerHTML).toContain('Bundle')
     expect(el.shadowRoot.innerHTML).toContain('Dependency Scan')
     expect(el.shadowRoot.innerHTML).toContain('Console Usage Scan')
+
+    globalThis.fetch = orig
+  })
+
+  test('renders the a11y hints when the scan is absent or fully clean', async () => {
+    document.body.innerHTML = ''
+    const index = {
+      generatedAt: 'now',
+      files: {},
+    }
+    const orig = globalThis.fetch
+    globalThis.fetch = jest.fn(async (url) => {
+      const key = url.split('/').pop()
+      if (key === 'index.json') return { ok: true, json: async () => index }
+      return { ok: true, json: async () => null }
+    })
+
+    const el = await mount(CMS_TAGS.CMS_DEPLOY_INFO)
+    expect(el._fetchState).toBe('ready')
+    expect(el.a11y).toBeNull()
+    expect(el.shadowRoot.innerHTML).toContain('No IBM accessibility scan')
+
+    globalThis.fetch = jest.fn(async (url) => {
+      const key = url.split('/').pop()
+      if (key === 'index.json')
+        return { ok: true, json: async () => ({ files: { a11y: 'a11y-summary.json' } }) }
+      if (key === 'a11y-summary.json')
+        return {
+          ok: true,
+          json: async () => ({ engine: 'e', pages: 2, totals: {}, rules: [], routes: [] }),
+        }
+      return { ok: true, json: async () => null }
+    })
+
+    const clean = await mount(CMS_TAGS.CMS_DEPLOY_INFO)
+    expect(clean.shadowRoot.innerHTML).toContain('Zero findings on all scanned routes')
+    expect(clean.shadowRoot.innerHTML).toContain('Every scanned route is clean')
+    expect(clean.shadowRoot.innerHTML).toContain('gate passed')
 
     globalThis.fetch = orig
   })

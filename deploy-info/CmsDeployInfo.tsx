@@ -3,8 +3,9 @@
  * @description <cms-deploy-info> — the Deploy Info tab: renders the
  * quality bundle from dist/deploy-info/ (written by scripts/build/deploy-info.mjs
  * at build time) — Lighthouse scores per URL, Jest coverage totals,
- * axe-core violations, Snyk/yarn-audit vulnerabilities, and the console-*
- * governance scan, grouped as one report wall.
+ * axe-core violations, the IBM Equal Access full-site scan summary,
+ * Snyk/yarn-audit vulnerabilities, and the console-* governance scan,
+ * grouped as one report wall.
  *
  * Facade — report types/fetch/JSX live in ../deploy-info/.
  */
@@ -19,6 +20,7 @@ import {
   renderCoverage,
   renderBundle,
   renderAxe,
+  renderA11y,
   renderSnyk,
   renderConsoleScan,
   renderScores,
@@ -26,6 +28,7 @@ import {
   pct,
 } from './render.js'
 import type {
+  A11yReport,
   AxeReport,
   BundleStatsReport,
   ConsoleScanReport,
@@ -47,6 +50,7 @@ export class CmsDeployInfo extends BaseComponent {
   coverage: CoverageReport | null = null // jest coverage-summary JSON
   bundle: BundleStatsReport | null = null // dist/ bundle inventory (js/css/html/wasm sizes)
   axe: AxeReport | null = null // axe-scan report JSON
+  a11y: A11yReport | null = null // IBM Equal Access full-site scan summary
   snyk: SnykReport | null = null // snyk/yarn-audit report JSON
   consoleScan: ConsoleScanReport | null = null // console-scan report JSON
 
@@ -103,6 +107,12 @@ export class CmsDeployInfo extends BaseComponent {
 
   _renderAxe() {
     return renderAxe(this)
+  }
+
+  /** Renders the IBM Equal Access full-site scan (rule rollup + flagged routes). */
+
+  _renderA11y() {
+    return renderA11y(this)
   }
 
   /** Renders the dependency vulnerability scan (Snyk or yarn-audit fallback). */
