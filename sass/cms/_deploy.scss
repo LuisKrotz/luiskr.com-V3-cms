@@ -53,3 +53,142 @@
 .cms-score--bad {
   color: $cms-error;
 }
+
+.cms-score--info {
+  color: $cms-accent;
+}
+
+// ─── Report graphics ─────────────────────────────────────────────────────────
+// Ring gauges + horizontal bars that visualize each report's numbers; the
+// data tables stay rendered alongside as the semantic text alternative.
+
+$_B_DEPLOY: 'cms-deploy';
+
+.#{$_B_DEPLOY}-gauges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin: var(--space-sm) 0 var(--space-md);
+}
+
+.#{$_B_DEPLOY}-gauge {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--space-4xl);
+  color: $cms-text-primary;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.#{$_B_DEPLOY}-gauge-track {
+  fill: none;
+  stroke: $cms-bg-dark;
+  stroke-width: 3;
+}
+
+.#{$_B_DEPLOY}-gauge-fill {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  // Rotate the dash origin to 12 o'clock — svg arcs start at 3 o'clock.
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+
+  &.cms-score--good {
+    stroke: $cms-badge-green;
+  }
+
+  &.cms-score--warn {
+    stroke: $cms-badge-warn;
+  }
+
+  &.cms-score--bad {
+    stroke: $cms-error;
+  }
+
+  &.cms-score--info {
+    stroke: $cms-accent;
+  }
+}
+
+.#{$_B_DEPLOY}-gauge-num {
+  fill: $cms-text-primary;
+  font-size: to-rem(10px);
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.#{$_B_DEPLOY}-gauge-label {
+  margin-top: var(--space-2xs);
+  font-size: 0.75rem;
+  color: $cms-text-subtle;
+}
+
+.#{$_B_DEPLOY}-chart {
+  margin: var(--space-sm) 0 var(--space-md);
+}
+
+.#{$_B_DEPLOY}-chart-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xs) 0;
+}
+
+.#{$_B_DEPLOY}-chart-label {
+  flex: 0 0 var(--space-8xl);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: $cms-text-primary;
+}
+
+.#{$_B_DEPLOY}-chart-bar {
+  flex: 1 1 auto;
+  display: block;
+  height: var(--space-md);
+  min-width: var(--space-6xl);
+}
+
+.#{$_B_DEPLOY}-chart-track {
+  fill: $cms-bg-dark;
+}
+
+.#{$_B_DEPLOY}-chart-fill {
+  &.cms-score--good {
+    fill: $cms-badge-green;
+  }
+
+  &.cms-score--warn {
+    fill: $cms-badge-warn;
+  }
+
+  &.cms-score--bad {
+    fill: $cms-error;
+  }
+
+  &.cms-score--info {
+    fill: $cms-accent;
+  }
+}
+
+.#{$_B_DEPLOY}-chart-val {
+  flex: 0 0 var(--space-5xl);
+  text-align: right;
+  font-size: 0.85rem;
+  color: $cms-text-subtle;
+}
+
+.#{$_B_DEPLOY}-chart-legend {
+  margin: var(--space-2xs) 0 0;
+  font-size: 0.8rem;
+  color: $cms-text-subtle;
+}

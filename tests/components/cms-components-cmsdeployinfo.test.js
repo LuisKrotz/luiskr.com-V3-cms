@@ -5,6 +5,7 @@
 import { describe, test, expect, jest } from '@jest/globals'
 import { LOCALES, ROUTE_PREFIXES } from '@core/constants.js'
 import { CMS_TAGS } from '@cms/tokens.js'
+import { CMS_DEPLOY_CLASSES } from '@cms/tokens/editors/deploy.js'
 import { TEST_PROJECTS } from '@tests/fixtures/test-constants.js'
 import { NAV_TEXT } from '@core/tokens/strings/text.js'
 import { ROUTE_PATHS } from '@core/tokens/routes/paths.js'
@@ -232,6 +233,25 @@ describe('CmsDeployInfo', () => {
     expect(el.shadowRoot.innerHTML).toContain('Bundle')
     expect(el.shadowRoot.innerHTML).toContain('Dependency Scan')
     expect(el.shadowRoot.innerHTML).toContain('Console Usage Scan')
+
+    // Report graphics — gauges, bars, stacked distributions + text fallbacks.
+    const root = el.shadowRoot
+    const gauges = root.querySelectorAll(`.${CMS_DEPLOY_CLASSES.CMS_GAUGE}`)
+    expect(gauges.length).toBe(4)
+    const fills = root.querySelectorAll(`.${CMS_DEPLOY_CLASSES.CMS_GAUGE_FILL}`)
+    expect(fills.length).toBe(1) // only 'performance' has a score in the fixture
+    expect(fills[0].style.strokeDasharray).toBe('95 100')
+    expect(gauges[0].getAttribute('role')).toBe('img')
+    expect(gauges[0].getAttribute('aria-label')).toBe('performance 95')
+
+    // Coverage bars: 4 totals + 1 module row per populated module.
+    const bars = root.querySelectorAll(`.${CMS_DEPLOY_CLASSES.CMS_CHART_ROW}`)
+    expect(bars.length).toBeGreaterThanOrEqual(9)
+
+    // Stacked distributions carry a visible text legend (not color-only).
+    const legends = root.querySelectorAll(`.${CMS_DEPLOY_CLASSES.CMS_CHART_LEGEND}`)
+    expect(legends.length).toBeGreaterThanOrEqual(1)
+    expect([...legends].some((l) => l.textContent.includes('violations 1'))).toBe(true)
 
     globalThis.fetch = orig
   })

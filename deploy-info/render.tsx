@@ -6,6 +6,8 @@
 
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 import { TYPE_STRINGS } from '@core/tokens/strings/types.js'
+import { ARIA_ATTRS } from '@core/tokens/attrs/aria.js'
+import { ATTR_VALUES } from '@core/tokens/attrs/values.js'
 import { h } from '@core/jsx.js'
 import { DEPLOY_INFO_BASE } from './data.js'
 import type { CmsDeployInfo } from './CmsDeployInfo.js'
@@ -22,6 +24,9 @@ const LIGHTHOUSE_KEYS = ['performance', 'accessibility', 'best-practices', 'seo'
 
 /** Coverage-summary row keys in display order. */
 const COVERAGE_KEYS = ['lines', 'statements', 'functions', 'branches']
+
+/** The metric the per-module chart bars plot — line coverage, the head-line number. */
+const LINES_METRIC = COVERAGE_KEYS[0]
 
 /** Maps a 0–1 score to the green/amber/red chip class (Lighthouse conventions). */
 export const scoreClass = (value: unknown): string => {
@@ -44,6 +49,163 @@ export const pct = (value: unknown): string =>
     ? `${Math.round((value as number) * 100)}`
     : CHAR_STRINGS.EM_DASH
 
+/** Maps a 0–1 score to just the good/warn/bad tone modifier (chart fills). */
+const scoreTone = (value: number): string =>
+  value >= SCORE_GOOD_THRESHOLD
+    ? CMS_DEPLOY_CLASSES.CMS_SCORE_GOOD
+    : value >= SCORE_WARN_THRESHOLD
+      ? CMS_DEPLOY_CLASSES.CMS_SCORE_WARN
+      : CMS_DEPLOY_CLASSES.CMS_SCORE_BAD
+
+/**
+ * Gauge geometry — a 36-unit viewBox with r = 100 / 2π ≈ 15.9155 makes the
+ * ring circumference exactly 100, so `stroke-dasharray` equals the score
+ * percent directly (the same trick Lighthouse's own gauges use).
+ */
+const GAUGE_VIEWBOX = '0 0 36 36'
+const GAUGE_CENTER = 18
+const GAUGE_R = 15.9155
+
+/**
+ * One Lighthouse-style ring gauge — an SVG donut whose arc length is the
+ * score percent, colored by the good/warn/bad thresholds, with the number
+ * printed in the hole and the category label underneath. `role="img"` +
+ * `aria-label` gives the graphic a text alternative; the score table below
+ * stays as the full semantic fallback.
+ * @param {string} label Category name (performance/accessibility/…).
+ * @param {unknown} value 0–1 score; non-numbers render an empty ring + "—".
+ */
+const renderGauge = (label: string, value: unknown) => {
+  const num = typeof value === TYPE_STRINGS.NUMBER ? (value as number) : null
+
+  return (
+    <span
+      class={CMS_DEPLOY_CLASSES.CMS_GAUGE}
+      role={ARIA_ATTRS.ROLE_IMG}
+      aria-label={`${label} ${pct(value)}`}
+    >
+      <svg viewBox={GAUGE_VIEWBOX} aria-hidden={ATTR_VALUES.TRUE}>
+        <circle
+          class={CMS_DEPLOY_CLASSES.CMS_GAUGE_TRACK}
+          cx={GAUGE_CENTER}
+          cy={GAUGE_CENTER}
+          r={GAUGE_R}
+        />
+        {num !== null ? (
+          <circle
+            class={`${CMS_DEPLOY_CLASSES.CMS_GAUGE_FILL} ${scoreTone(num)}`}
+            cx={GAUGE_CENTER}
+            cy={GAUGE_CENTER}
+            r={GAUGE_R}
+            style={{ strokeDasharray: `${num * 100} 100` }}
+          />
+        ) : null}
+        <text class={CMS_DEPLOY_CLASSES.CMS_GAUGE_NUM} x={GAUGE_CENTER} y={GAUGE_CENTER}>
+          {pct(value)}
+        </text>
+      </svg>
+      <span class={CMS_DEPLOY_CLASSES.CMS_GAUGE_LABEL} aria-hidden={ATTR_VALUES.TRUE}>
+        {label}
+      </span>
+    </span>
+  )
+}
+
+/** Horizontal-bar geometry — 100-unit-wide svg so fill width equals percent. */
+const BAR_VIEWBOX = '0 0 100 8'
+const BAR_HEIGHT = 8
+
+/**
+ * One labeled horizontal bar — the label, a full-width track with a
+ * proportional fill rect, and the formatted value. `preserveAspectRatio=none`
+ * lets the svg stretch to the row while keeping the 0–100 scale.
+ * @param {string} label Row label (metric name).
+ * @param {number} frac Fill fraction 0–1 (clamped for safety).
+ * @param {string} display Formatted value text shown at the row end.
+ * @param {string} [tone] Modifier class for the fill color.
+ */
+const renderBar = (label: string, frac: number, display: string, tone: string) => (
+  <div class={CMS_DEPLOY_CLASSES.CMS_CHART_ROW}>
+    <span class={CMS_DEPLOY_CLASSES.CMS_CHART_LABEL}>{label}</span>
+    <svg
+      class={CMS_DEPLOY_CLASSES.CMS_CHART_BAR}
+      viewBox={BAR_VIEWBOX}
+      preserveAspectRatio={ATTR_VALUES.NONE}
+      role={ARIA_ATTRS.ROLE_IMG}
+      aria-label={`${label} ${display}`}
+    >
+      <rect
+        class={CMS_DEPLOY_CLASSES.CMS_CHART_TRACK}
+        x={0}
+        y={0}
+        width={100}
+        height={BAR_HEIGHT}
+      />
+      <rect
+        class={`${CMS_DEPLOY_CLASSES.CMS_CHART_FILL} ${tone}`}
+        x={0}
+        y={0}
+        width={Math.min(1, Math.max(0, frac)) * 100}
+        height={BAR_HEIGHT}
+      />
+    </svg>
+    <span class={CMS_DEPLOY_CLASSES.CMS_CHART_VAL}>{display}</span>
+  </div>
+)
+
+/**
+ * Stacked distribution bar — one track split into proportional segments
+ * (e.g. violations/potential/recommendation), with the legend printed as
+ * text alongside so the graphic never carries meaning by color alone.
+ * @param segments `[{label, count, tone}]` — counts needn't sum to 100;
+ * they are normalized against their total.
+ */
+const renderStacked = (segments: Array<{ label: string; count: number; tone: string }>) => {
+  const total = segments.reduce((acc, s) => acc + s.count, 0)
+
+  if (!total) return null
+
+  const label = segments.map((s) => `${s.label} ${s.count}`).join(', ')
+  let x = 0
+
+  return (
+    <div class={CMS_DEPLOY_CLASSES.CMS_CHART}>
+      <svg
+        class={CMS_DEPLOY_CLASSES.CMS_CHART_BAR}
+        viewBox={BAR_VIEWBOX}
+        preserveAspectRatio={ATTR_VALUES.NONE}
+        role={ARIA_ATTRS.ROLE_IMG}
+        aria-label={label}
+      >
+        <rect
+          class={CMS_DEPLOY_CLASSES.CMS_CHART_TRACK}
+          x={0}
+          y={0}
+          width={100}
+          height={BAR_HEIGHT}
+        />
+        {segments
+          .filter((s) => s.count > 0)
+          .map((s) => {
+            const w = (s.count / total) * 100
+            const rect = (
+              <rect
+                class={`${CMS_DEPLOY_CLASSES.CMS_CHART_FILL} ${s.tone}`}
+                x={x}
+                y={0}
+                width={w}
+                height={BAR_HEIGHT}
+              />
+            )
+            x += w
+            return rect
+          })}
+      </svg>
+      <p class={CMS_DEPLOY_CLASSES.CMS_CHART_LEGEND}>{label}</p>
+    </div>
+  )
+}
+
 /** Renders the score chips for one Lighthouse category set. */
 export const renderScores = (scores: Record<string, number> | undefined) => {
   if (!scores) return null
@@ -62,25 +224,35 @@ export const renderLighthouse = (host: CmsDeployInfo) => {
   }
 
   return (
-    <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
-      <thead>
-        <tr>
-          <th>URL</th>
-          <th>Perf</th>
-          <th>A11y</th>
-          <th>Best</th>
-          <th>SEO</th>
-        </tr>
-      </thead>
-      <tbody>
-        {host.lighthouse.urls.map((entry) => (
+    <div>
+      {host.lighthouse.urls.map((entry) => (
+        <div class={CMS_DEPLOY_CLASSES.CMS_CHART}>
+          <p class={CMS_CARD_CLASSES.CMS_CARD_SUBTITLE}>{entry.url}</p>
+          <div class={CMS_DEPLOY_CLASSES.CMS_GAUGES}>
+            {LIGHTHOUSE_KEYS.map((key) => renderGauge(key, entry.scores?.[key]))}
+          </div>
+        </div>
+      ))}
+      <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
+        <thead>
           <tr>
-            <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{entry.url}</td>
-            {renderScores(entry.scores)}
+            <th>URL</th>
+            <th>Perf</th>
+            <th>A11y</th>
+            <th>Best</th>
+            <th>SEO</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {host.lighthouse.urls.map((entry) => (
+            <tr>
+              <td className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_URL}>{entry.url}</td>
+              {renderScores(entry.scores)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -97,6 +269,16 @@ export const renderCoverage = (host: CmsDeployInfo) => {
 
   return (
     <div>
+      <div class={CMS_DEPLOY_CLASSES.CMS_CHART}>
+        {COVERAGE_KEYS.map((key) =>
+          renderBar(
+            key,
+            (total[key]?.pct ?? 0) / 100,
+            `${total[key]?.pct ?? CHAR_STRINGS.EM_DASH}`,
+            scoreTone((total[key]?.pct ?? 0) / 100)
+          )
+        )}
+      </div>
       <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
         <thead>
           <tr>
@@ -121,6 +303,19 @@ export const renderCoverage = (host: CmsDeployInfo) => {
           ))}
         </tbody>
       </table>
+
+      {modules.length ? (
+        <div class={CMS_DEPLOY_CLASSES.CMS_CHART}>
+          {modules.map(([name, row]) =>
+            renderBar(
+              name,
+              (row[LINES_METRIC]?.pct ?? 0) / 100,
+              `${row[LINES_METRIC]?.pct ?? CHAR_STRINGS.EM_DASH}`,
+              scoreTone((row[LINES_METRIC]?.pct ?? 0) / 100)
+            )
+          )}
+        </div>
+      ) : null}
 
       {modules.length ? (
         <div>
@@ -170,6 +365,15 @@ export const renderAxe = (host: CmsDeployInfo) => {
         {host.axe.engine} · {t.violations ?? 0} violations ({t.criticalOrSerious ?? 0}{' '}
         critical/serious) · {t.passes ?? 0} rules passed · {t.incomplete ?? 0} needs-review
       </p>
+      {renderStacked([
+        { label: 'violations', count: t.violations ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_BAD },
+        {
+          label: 'needs-review',
+          count: t.incomplete ?? 0,
+          tone: CMS_DEPLOY_CLASSES.CMS_SCORE_WARN,
+        },
+        { label: 'passed', count: t.passes ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_GOOD },
+      ])}
       {surfaces.some((s) => s.violations?.length) ? (
         <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
           <thead>
@@ -235,6 +439,20 @@ export const renderA11y = (host: CmsDeployInfo) => {
         {t.errors ? ` · ${t.errors} scan errors` : CHAR_STRINGS.EMPTY}
         {t.gated ? ' · gate FAILED' : ' · gate passed'}
       </p>
+      {renderStacked([
+        { label: 'violations', count: t.violation ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_BAD },
+        {
+          label: 'potential',
+          count: t.potentialviolation ?? 0,
+          tone: CMS_DEPLOY_CLASSES.CMS_SCORE_WARN,
+        },
+        {
+          label: 'recommendations',
+          count: t.recommendation ?? 0,
+          tone: CMS_DEPLOY_CLASSES.CMS_SCORE_INFO,
+        },
+        { label: 'manual', count: t.manual ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_GOOD },
+      ])}
       {rules.length ? (
         <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
           <thead>
@@ -312,6 +530,12 @@ export const renderSnyk = (host: CmsDeployInfo) => {
         moderate {t.moderate ?? 0}, low {t.low ?? 0}
         {host.snyk.ok ? ' · gate passed' : ' · gate FAILED'}
       </p>
+      {renderStacked([
+        { label: 'critical', count: t.critical ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_BAD },
+        { label: 'high', count: t.high ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_BAD },
+        { label: 'moderate', count: t.moderate ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_WARN },
+        { label: 'low', count: t.low ?? 0, tone: CMS_DEPLOY_CLASSES.CMS_SCORE_INFO },
+      ])}
       {vulns.length ? (
         <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
           <thead>
@@ -406,9 +630,20 @@ export const renderBundle = (host: CmsDeployInfo) => {
   const crates = b.wasm || []
   const largest = b.largest || []
   const byDir = b.html?.byDir || []
+  const maxBytes = Math.max(1, ...BUNDLE_TOTAL_KEYS.map(([, key]) => totals[key]?.bytes ?? 0))
 
   return (
     <div>
+      <div class={CMS_DEPLOY_CLASSES.CMS_CHART}>
+        {BUNDLE_TOTAL_KEYS.map(([label, key]) =>
+          renderBar(
+            label,
+            (totals[key]?.bytes ?? 0) / maxBytes,
+            fmtBytes(totals[key]?.bytes),
+            CMS_DEPLOY_CLASSES.CMS_SCORE_INFO
+          )
+        )}
+      </div>
       <h4 className={CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE}>Totals (all emitted output)</h4>
       <table className={CMS_DEPLOY_CLASSES.CMS_DEPLOY_TABLE}>
         <thead>
