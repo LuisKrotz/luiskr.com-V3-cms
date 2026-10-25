@@ -14,7 +14,7 @@
 
   .cms-card-title {
     font-size: 1.2rem;
-    font-weight: 300;
+    font-weight: calc(300 + var(--fw-lift));
     margin-bottom: 1rem;
     color: $color-white;
   }
@@ -31,7 +31,7 @@
     font-size: 0.92rem;
     color: $cms-text-subtle;
     margin-bottom: 0.4rem;
-    font-weight: 500;
+    font-weight: calc(500 + var(--fw-lift));
   }
 }
 
@@ -60,7 +60,7 @@
 .cms-btn {
   background: $cms-accent;
   color: $cms-bg-darkest;
-  font-weight: 600;
+  font-weight: calc(600 + var(--fw-lift));
   padding: 0.65rem 1.2rem;
   border-radius: var(--radius-sm);
   border: none;

@@ -59,7 +59,7 @@
 }
 
 .cms-item-label {
-  font-weight: 600;
+  font-weight: calc(600 + var(--fw-lift));
   color: $cms-accent;
 }
 

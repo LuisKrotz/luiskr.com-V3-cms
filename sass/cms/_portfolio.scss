@@ -87,7 +87,7 @@
 .cms-pf-title {
   color: $cms-accent;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: calc(600 + var(--fw-lift));
   margin: 0;
 }
 
@@ -120,7 +120,7 @@
 .cms-pf-dims-title {
   font-size: 0.85rem;
   color: $cms-text-muted;
-  font-weight: 600;
+  font-weight: calc(600 + var(--fw-lift));
   display: block;
   margin-bottom: var(--space-sm);
 }

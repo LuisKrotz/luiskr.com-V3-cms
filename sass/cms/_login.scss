@@ -29,7 +29,7 @@
 
   .admin-title {
     font-size: 2rem;
-    font-weight: 300;
+    font-weight: calc(300 + var(--fw-lift));
     margin-bottom: 0.5rem;
     letter-spacing: 1px;
     color: $color-white;
@@ -50,7 +50,7 @@
     background: $color-white;
     color: $color-black;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: calc(600 + var(--fw-lift));
     padding: 0.85rem 1.5rem;
     border-radius: var(--radius-md);
     border: none;

@@ -20,7 +20,7 @@
 
   th {
     color: $cms-text-subtle;
-    font-weight: 600;
+    font-weight: calc(600 + var(--fw-lift));
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 0.8rem;
@@ -38,7 +38,7 @@
   padding: var(--space-2xs) var(--space-xs);
   border-radius: var(--space-2xs);
   text-align: center;
-  font-weight: 700;
+  font-weight: calc(700 + var(--fw-lift));
   background: $cms-bg-dark;
 }
 
@@ -120,7 +120,7 @@ $_B_DEPLOY: 'cms-deploy';
 .#{$_B_DEPLOY}-gauge-num {
   fill: $cms-text-primary;
   font-size: to-rem(10px);
-  font-weight: 700;
+  font-weight: calc(700 + var(--fw-lift));
   text-anchor: middle;
   dominant-baseline: central;
 }

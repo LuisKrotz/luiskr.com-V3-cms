@@ -79,7 +79,7 @@
   background: $cms-accent;
   color: $cms-bg-card;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: calc(700 + var(--fw-lift));
   text-transform: uppercase;
   vertical-align: middle;
 }
