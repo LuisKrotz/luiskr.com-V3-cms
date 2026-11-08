@@ -21,7 +21,7 @@ import {
   renderPlaygroundEditor,
   renderSlugRows,
 } from './render.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 
 /**
  * The CmsPlaygroundEditor — playground editor class.

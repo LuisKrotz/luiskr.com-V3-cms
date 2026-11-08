@@ -18,7 +18,7 @@ import { addItem, bindListEvents, moveItem, removeItem, renderChannelList } from
 import { bindEvents } from './events.js'
 import { renderFooterEditor } from './render.js'
 import type { ContactData, FooterChannel, RelatedFooter } from './types.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 
 /**
  * The CmsFooterEditor — footer editor class.

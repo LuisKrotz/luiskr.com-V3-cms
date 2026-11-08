@@ -39,7 +39,7 @@ import type {
   LighthouseReport,
   SnykReport,
 } from './types.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 
 /**
  * The CmsDeployInfo — deploy info class.

@@ -15,7 +15,7 @@
 import { CMS_EVENTS, CMS_TAGS } from '@cms/tokens.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 import { BaseComponent } from '@core/Component.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 import { PHASE, type JobStatus, type QueueItem, type ToolsReport } from './consts.js'
 import { bindEvents } from './events.js'
 import { collectDrop, collectInput } from './files.js'

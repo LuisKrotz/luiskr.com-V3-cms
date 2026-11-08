@@ -16,7 +16,7 @@ import { CACHE_STORAGE_KEYS } from '@core/tokens/data/storage.js'
 import { h } from '@core/jsx.js'
 import { BaseComponent } from '@core/Component.js'
 import { signInWithGoogle } from '@core/firebase.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 import { CMS_ADMIN_CLASSES } from '@cms/tokens.js'
 import { devError } from '@core/devlog.js'
 

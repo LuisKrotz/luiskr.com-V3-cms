@@ -10,7 +10,7 @@ import { LOCALES } from '@core/tokens/locales.js'
 import { CMS_TAGS, CMS_EVENTS } from '@cms/tokens.js'
 import { BaseComponent } from '@core/Component.js'
 import { VALID_LANGS } from '@core/i18n.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 import { bindEvents } from './events.js'
 import {
   createProjectPrompt,

@@ -18,7 +18,7 @@ import { getDbInstance } from '@core/firebase.js'
 import { ref, child, get, set } from 'firebase/database'
 import { h } from '@core/jsx.js'
 import { VALID_LANGS } from '@core/i18n.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 import { CMS_BUTTON_CLASSES, CMS_CARD_CLASSES, CMS_FORM_CLASSES } from '@cms/tokens.js'
 import { devError } from '@core/devlog.js'
 

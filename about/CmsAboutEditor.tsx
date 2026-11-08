@@ -15,7 +15,7 @@ import { LOCALES } from '@core/tokens/locales.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 import { NAV_TEXT } from '@core/tokens/strings/text.js'
 import { VALID_LANGS } from '@core/i18n.js'
-import cmsStyles from '@cms/sass/cms.scss?inline'
+import cmsStyles from '@cms/sass/cms.scss?tiers'
 import {
   applyPictureToAllLangs,
   loadAboutData,

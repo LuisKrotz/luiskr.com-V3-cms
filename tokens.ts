@@ -101,6 +101,11 @@ export const CMS_LANG_NODES = Object.freeze([
   'pages/terms-of-use',
   'pages/license',
   'pages/not-found',
+  'pages/star-field',
   'pages/earth-playground',
+  'pages/animations',
+  'pages/contact',
+  'pages/search',
+  'pages/sitemap',
   'slugs',
 ])
