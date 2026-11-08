@@ -39,8 +39,11 @@ async function syncRelatedFeatured(
 }
 
 /**
- * Loads lang portfolio.
- * @param host — the host component
+ * Loads the portfolio list + the `related/projects` node for the selected
+ * locale — the related map back-fills `featured` for legacy items that
+ * predate the flag on the list itself, and missing dimension arrays get
+ * the FHD-width / mosaic-height token defaults.
+ * @param host — the host component whose `items` slice is filled
  */
 export async function loadLangPortfolio(host: CmsPortfolioList) {
   try {
@@ -96,8 +99,11 @@ export async function loadLangPortfolio(host: CmsPortfolioList) {
 }
 
 /**
- * Syncs non localized to all langs.
- * @param host — the host component
+ * Propagates the non-localized fields (image, link, featured, dimensions)
+ * to every other locale — localized `label`/`description` are preserved
+ * from each target's existing row, matched by list position. Also writes
+ * the featured flags into each locale's `related/projects` node.
+ * @param host — the host component holding the source `items`
  */
 export async function syncNonLocalizedToAllLangs(host: CmsPortfolioList) {
   if (
@@ -167,8 +173,9 @@ export async function syncNonLocalizedToAllLangs(host: CmsPortfolioList) {
 }
 
 /**
- * Saves portfolio.
- * @param host — the host component
+ * Persists the current locale's portfolio list to Firebase, then runs the
+ * related-projects featured sync so the case-study footer flags agree.
+ * @param host — the host component holding `items` + `selectedLang`
  */
 export async function savePortfolio(host: CmsPortfolioList) {
   host.saving = true

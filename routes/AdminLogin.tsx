@@ -43,7 +43,12 @@ const unwrapAuthMessage = (raw: string): string => {
 }
 
 /**
- * The ViewAdminLogin — admin login class.
+ * <view-admin-login> — the CMS auth gate: a single Google OAuth card.
+ * `connectedCallback` replays any OAuth failure persisted across the
+ * redirect (storage-partitioned sessions and App-Check rejections get
+ * tailored messages instead of a silent loop); `handleGoogleLogin`
+ * re-fires the popup with a re-entrancy guard and suppresses the
+ * user-cancelled codes.
  */
 export class ViewAdminLogin extends BaseComponent {
   loading = false // OAuth round-trip in flight — disables the button

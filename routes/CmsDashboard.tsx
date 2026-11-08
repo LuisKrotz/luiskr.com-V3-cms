@@ -32,7 +32,10 @@ import '@cms/deploy-info/CmsDeployInfo.js'
 import { CMS_ADMIN_CLASSES, CMS_DASHBOARD_CLASSES } from '@cms/tokens.js'
 
 /**
- * The ViewCmsDashboard — cms dashboard class.
+ * <view-cms-dashboard> — the authenticated CMS shell: header with
+ * brand/avatar/logout, the tab strip routing between editors, and the
+ * toast surface that child editors notify via `cms-notification`
+ * events (bound on `this` so they bubble up through the shadow tree).
  */
 export class ViewCmsDashboard extends BaseComponent {
   activeTab: string = CMS_TABS.PORTFOLIO // currently mounted editor tab
@@ -45,7 +48,7 @@ export class ViewCmsDashboard extends BaseComponent {
     super(cmsStyles)
   }
 
-  /** Lifecycle: verifies auth session and binds tab/navigation events. */
+  /** Wires events, subscribes to auth state, and listens for child toasts. */
 
   override async onMounted() {
     this._bindEvents()
@@ -62,7 +65,7 @@ export class ViewCmsDashboard extends BaseComponent {
     })
   }
 
-  /** Lifecycle: unbinds listeners. */
+  /** Unsubscribes auth + clears the pending toast timer on unmount. */
 
   override onDestroy() {
     if (this.unsubscribe) this.unsubscribe()
@@ -96,7 +99,7 @@ export class ViewCmsDashboard extends BaseComponent {
     }, 3500)
   }
 
-  /** Wires tab clicks, logout and cms-notification events. */
+  /** Tab clicks, logout, and the brand-back-to-site navigation. */
 
   private _bindEvents(): void {
     const logoutBtn = this.$(`.${CMS_DASHBOARD_CLASSES.CMS_LOGOUT_BTN}`)

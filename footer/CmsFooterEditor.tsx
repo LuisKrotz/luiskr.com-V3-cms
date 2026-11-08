@@ -21,7 +21,12 @@ import type { ContactData, FooterChannel, RelatedFooter } from './types.js'
 import cmsStyles from '@cms/sass/cms.scss?tiers'
 
 /**
- * The CmsFooterEditor — footer editor class.
+ * <cms-footer-editor> — the element facade for the footer editor: holds
+ * the three data slices (contactData, legalLinks, relatedFooter +
+ * relatedExtra round-trip bag) and delegates to `data.ts` (Firebase),
+ * `lists.ts` (channel-list render/binding), `events.ts` (wiring), and
+ * `render.tsx` (JSX). `_`-prefixed methods are the internal call surface
+ * the templates and tests use.
  */
 export class CmsFooterEditor extends BaseComponent {
   languages: readonly string[] = VALID_LANGS // all editable locales

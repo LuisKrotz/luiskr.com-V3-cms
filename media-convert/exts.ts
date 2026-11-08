@@ -41,9 +41,15 @@ export const VIDEO_EXTS = new Set([
 ])
 
 /**
+ * Document extensions the pipeline rasterizes — each PDF's pages are
+ * merged into one tall PNG plus a small first-page thumbnail.
+ */
+export const PDF_EXTS = new Set(['.pdf'])
+
+/**
  * Union of every accepted extension — the drop-time filter.
  */
-export const MEDIA_EXTS = new Set([...IMAGE_EXTS, ...VIDEO_EXTS])
+export const MEDIA_EXTS = new Set([...IMAGE_EXTS, ...VIDEO_EXTS, ...PDF_EXTS])
 
 /**
  * Reports whether a file name/path carries a supported media extension.
@@ -51,7 +57,7 @@ export const MEDIA_EXTS = new Set([...IMAGE_EXTS, ...VIDEO_EXTS])
  * (.DS_Store) and unknown extensions all report false so OS litter inside
  * dropped folders never reaches the queue.
  * @param name — file name or relative path
- * @returns true when the extension is a known image or video format
+ * @returns true when the extension is a known image, video or document format
  */
 export const isMediaPath = (name: string): boolean =>
   MEDIA_EXTS.has(name.slice(name.lastIndexOf('.')).toLowerCase())

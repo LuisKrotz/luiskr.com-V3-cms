@@ -12,14 +12,22 @@ import { COVER_DIMENSIONS } from '@core/tokens/media/dimensions.js'
 import { CMS_PROJECTS_CLASSES } from '@cms/tokens.js'
 
 /**
- * Binds events.
- * @param host — the host component
+ * Binds the projects editor's events — header buttons, the lang/project
+ * selectors, then (only when a project is loaded) the scalar fields, and
+ * finally the per-row controls on each section card. Row controls carry
+ * `data-idx` (section index), `data-sec` + `data-tidx`/`data-midx` attrs
+ * read here to route the write into `proj.sections[s][0|1][i]` — the
+ * `[texts, media]` tuple shape `sections.ts` normalizes. Scoped
+ * listeners auto-detach on re-render so re-binding per render is intended.
+ * @param host — the host component exposing `addScopedListener` + `$`/`$$`
  */
 export function bindEvents(host: CmsProjectsList) {
+  /** Single-element scoped listener, no-op when the selector misses. */
   const on = (sel: string, ev: string, fn: EventListener) => {
     const el = host.$(sel)
     if (el) host.addScopedListener(el, ev, fn)
   }
+  /** Runs `fn` on every match — used to wire each rendered row's controls. */
   const all = (sel: string, fn: (_el: HTMLElement) => void) => host.$$(sel).forEach(fn)
 
   on(`#${CMS_PROJECTS_IDS.BTN_CREATE}`, MOUSE_EVENTS.CLICK, () => host.createProjectPrompt())
@@ -67,7 +75,8 @@ export function bindEvents(host: CmsProjectsList) {
     })
   }
 
-  // Section controls
+  // Section card chrome — reorder/remove on the card level, then the
+  // two add-buttons that append a paragraph or media row to a section.
   all(`.${CMS_PROJECTS_CLASSES.SEC_UP}`, (btn) => {
     const i = parseInt(btn.getAttribute(DATA_ATTRS.DATA_IDX) || '0', 10)
     host.addScopedListener(btn, MOUSE_EVENTS.CLICK, () => host.moveSection(i, -1))
@@ -89,7 +98,8 @@ export function bindEvents(host: CmsProjectsList) {
     host.addScopedListener(btn, MOUSE_EVENTS.CLICK, () => host.addSectionMedia(s))
   })
 
-  // Section text editing
+  // Paragraph textareas — `data-sec`/`data-tidx` index into the text half
+  // of the section tuple; ensureSectionShape guards a legacy flat array.
   all(`.${CMS_PROJECTS_CLASSES.SEC_TEXT_INPUT}`, (ta) => {
     const s = parseInt(ta.getAttribute(DATA_ATTRS.DATA_SEC) || '0', 10)
     const t = parseInt(ta.getAttribute(DATA_ATTRS.DATA_TIDX) || '0', 10)
@@ -105,7 +115,8 @@ export function bindEvents(host: CmsProjectsList) {
     host.addScopedListener(btn, MOUSE_EVENTS.CLICK, () => host.removeSectionText(s, t))
   })
 
-  // Media field editing
+  // Media rows — src triggers _updateDom (thumbnail preview refresh);
+  // the other fields write in place without a re-render.
   all(`.${CMS_PROJECTS_CLASSES.MEDIA_SRC}`, (inp) => {
     const s = parseInt(inp.getAttribute(DATA_ATTRS.DATA_SEC) || '0', 10)
     const m = parseInt(inp.getAttribute(DATA_ATTRS.DATA_MIDX) || '0', 10)

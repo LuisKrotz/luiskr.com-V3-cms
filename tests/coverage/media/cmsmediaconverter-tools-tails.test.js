@@ -12,48 +12,67 @@ import { CMS_EVENTS, CMS_MEDIA_CLASSES, CMS_MEDIA_IDS, CMS_TAGS } from '@cms/tok
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 import { NET_STRINGS } from '@core/tokens/strings/net.js'
 
+/** Fixture: /tools report where every tool is present — healthy-panel branch. */
 const ALL_OK = {
   platform: 'linux',
-  tools: { ffmpeg: true, ffprobe: true, magick: true, cjpeg: true },
-  missing: { ffmpeg: false, imagemagick: false, cjpeg: false },
+  tools: { ffmpeg: true, ffprobe: true, magick: true, cjpeg: true, pdftoppm: true },
+  missing: { ffmpeg: false, imagemagick: false, cjpeg: false, poppler: false },
   manager: 'apt-get',
   plan: { manager: 'apt-get', needsRoot: false, commands: [], manual: [] },
 }
 
+/** Fixture: required tools missing with a sudo-only install plan — gated branch. */
 const MISSING_REQUIRED = {
   platform: 'linux',
-  tools: { ffmpeg: false, ffprobe: false, convert: false, cjpeg: false, magick: false },
-  missing: { ffmpeg: true, imagemagick: true, cjpeg: true },
+  tools: {
+    ffmpeg: false,
+    ffprobe: false,
+    convert: false,
+    cjpeg: false,
+    magick: false,
+    pdftoppm: false,
+  },
+  missing: { ffmpeg: true, imagemagick: true, cjpeg: true, poppler: true },
   manager: 'apt-get',
   plan: {
     manager: 'apt-get',
     needsRoot: true,
-    manual: ['sudo apt-get install -y ffmpeg imagemagick libjpeg-turbo-progs'],
+    manual: ['sudo apt-get install -y ffmpeg imagemagick libjpeg-turbo-progs poppler-utils'],
   },
 }
 
+/** Fixture: missing tools but no package manager detected — manual-install branch. */
 const PLAN_LESS = {
   platform: 'linux',
-  tools: { ffmpeg: false, ffprobe: true },
-  missing: { ffmpeg: true, imagemagick: false, cjpeg: false },
+  tools: { ffmpeg: false, ffprobe: true, pdftoppm: false },
+  missing: { ffmpeg: true, imagemagick: false, cjpeg: false, poppler: true },
   manager: null,
 }
 
+/** Fixture: optional tools missing with a runnable brew plan — install-button branch. */
 const MISSING_OPTIONAL_RUNNABLE = {
   platform: 'darwin',
-  tools: { ffmpeg: true, ffprobe: true, magick: false, convert: false, cjpeg: false },
-  missing: { ffmpeg: false, imagemagick: true, cjpeg: true },
+  tools: {
+    ffmpeg: true,
+    ffprobe: true,
+    magick: false,
+    convert: false,
+    cjpeg: false,
+    pdftoppm: false,
+  },
+  missing: { ffmpeg: false, imagemagick: true, cjpeg: true, poppler: true },
   manager: 'brew',
   plan: {
     manager: 'brew',
     needsRoot: false,
-    commands: [['brew', ['install', 'imagemagick', 'mozjpeg']]],
-    manual: ['brew install imagemagick mozjpeg'],
+    commands: [['brew', ['install', 'imagemagick', 'mozjpeg', 'poppler']]],
+    manual: ['brew install imagemagick mozjpeg poppler'],
   },
 }
 
 await import('@cms/media-convert/CmsMediaConverter.js')
 
+/** Mounts a fresh <cms-media-converter> element into the document body. */
 const mount = () => {
   const el = document.createElement(CMS_TAGS.CMS_MEDIA_CONVERTER)
 
@@ -62,8 +81,10 @@ const mount = () => {
   return el
 }
 
+/** Timer-based flush — mounted probes/renders need real timers past microtasks. */
 const flush = () => new Promise((resolve) => setTimeout(resolve, 40))
 
+/** Shadow-DOM query shorthand — asserts against the component's rendered root. */
 const shadow = (el, sel) => el.shadowRoot.querySelector(sel)
 
 /** Derives the modifier class (last token) from a compound state token. */
@@ -77,9 +98,7 @@ beforeEach(() => {
 describe('CmsMediaConverter tools panel — fetchTools', () => {
   test('mount probes /tools and stores the report on the host', async () => {
     globalThis.fetch = jest.fn(async (url) =>
-      String(url).endsWith('/tools')
-        ? { ok: true, json: async () => ALL_OK }
-        : { ok: false }
+      String(url).endsWith('/tools') ? { ok: true, json: async () => ALL_OK } : { ok: false }
     )
 
     const el = mount()
@@ -165,6 +184,8 @@ describe('CmsMediaConverter tools panel — renderTools branches', () => {
     const panel = shadow(el, `.${CMS_MEDIA_CLASSES.CMS_TOOLS_PANEL}`)
 
     expect(panel.textContent).toContain('Optional tools missing')
+    // the poppler row renders as an optional-missing badge, not a hard gate
+    expect(panel.textContent).toContain('poppler pdftoppm')
     const install = shadow(el, `#${CMS_MEDIA_IDS.TOOLS_INSTALL}`)
 
     expect(install).toBeTruthy()
@@ -245,9 +266,7 @@ describe('CmsMediaConverter tools panel — installTools + buttons', () => {
 
   test('install without report/log fields keeps prior state', async () => {
     globalThis.fetch = jest.fn(async (url) =>
-      String(url).endsWith('/tools/install')
-        ? { ok: true, json: async () => ({}) }
-        : { ok: false }
+      String(url).endsWith('/tools/install') ? { ok: true, json: async () => ({}) } : { ok: false }
     )
 
     const el = mount()

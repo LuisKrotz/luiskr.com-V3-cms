@@ -8,7 +8,9 @@ import { CMS_TAGS } from '@cms/tokens.js'
 import { TEST_TEXT, TEST_PROJECTS } from '@tests/fixtures/test-constants.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 
+/** Recorded values the set() mock observed — write assertions inspect this. */
 const setCalls = []
+/** Shared RTDB snapshot payload served by the get() mock for every read. */
 const snapVal = {
   title: TEST_TEXT.HEADING,
   sections: [{ text: [TEST_TEXT.BODY], media: [] }],
@@ -36,6 +38,7 @@ await import('@cms/footer/CmsFooterEditor.js')
 await import('@cms/portfolio/CmsPortfolioList.js')
 await import('@cms/media-convert/CmsMediaConverter.js')
 
+/** Mounts a custom element by tag into document.body and returns it. */
 const mount = (tag) => {
   const el = document.createElement(tag)
 
@@ -44,6 +47,7 @@ const mount = (tag) => {
   return el
 }
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 80) => new Promise((resolve) => setTimeout(resolve, ms))
 
 beforeEach(() => {

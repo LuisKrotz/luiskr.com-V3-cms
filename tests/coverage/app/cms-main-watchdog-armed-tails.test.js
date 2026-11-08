@@ -28,6 +28,7 @@ jest.unstable_mockModule('@core/utils/service-worker.js', () => ({
 
 jest.useFakeTimers()
 
+/** Boot mount point — main.ts requires an existing #cms-root element to mount into. */
 const root = document.createElement(HTML_TAGS.DIV)
 
 root.id = CMS_IDS.CMS_ROOT

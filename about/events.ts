@@ -10,16 +10,24 @@ import type { BioColumn, MentionItem } from './types.js'
 import { CMS_ABOUT_CLASSES } from '@cms/tokens.js'
 
 /**
- * Binds events.
- * @param host — the host component
+ * Binds the About editor's events — two binding helpers then one block per
+ * UI region. `on` attaches a scoped listener to a single matching element;
+ * `all` iterates every match (row-level controls rendered per item carry
+ * `data-col`/`data-idx`/`data-field` attrs read here to route the write).
+ * Scoped listeners auto-detach on re-render so re-binding after each
+ * render is the intended lifecycle.
+ * @param host — the host component exposing `addScopedListener` + `$`/`$$`
  */
 export function bindEvents(host: CmsAboutEditor) {
+  /** Single-element scoped listener, no-op when the selector misses. */
   const on = (sel: string, ev: string, fn: EventListener) => {
     const el = host.$(sel)
     if (el) host.addScopedListener(el, ev, fn)
   }
+  /** Runs `fn` on every match — used to wire each rendered row's controls. */
   const all = (sel: string, fn: (_el: HTMLElement) => void) => host.$$(sel).forEach(fn)
 
+  // ── Header + scalar-field bindings (save/sync/gravatar/lang/title) ──
   on(`#${CMS_ABOUT_IDS.SAVE}`, MOUSE_EVENTS.CLICK, () => host.saveAboutData())
   on(`#${CMS_ABOUT_IDS.SYNC_PICTURE}`, MOUSE_EVENTS.CLICK, () => host.applyPictureToAllLangs())
   on(`#${CMS_ABOUT_IDS.SYNC_ALL}`, MOUSE_EVENTS.CLICK, () => host.syncNonLocalizedToAllLangs())
@@ -46,6 +54,7 @@ export function bindEvents(host: CmsAboutEditor) {
     if (previewImg) previewImg.src = (e.target as HTMLInputElement).value
   })
 
+  // ── Gravatar size presets + bio-paragraph row controls ──
   all(`.${CMS_ABOUT_CLASSES.SIZE_PRESET_BTN}`, (btn) => {
     const size = parseInt(btn.getAttribute(DATA_ATTRS.DATA_SIZE) || '0', 10)
     host.addScopedListener(btn, MOUSE_EVENTS.CLICK, () => host.setGravatarSize(size))
@@ -77,6 +86,7 @@ export function bindEvents(host: CmsAboutEditor) {
     host.addScopedListener(btn, MOUSE_EVENTS.CLICK, () => host.moveParagraph(col, idx, 1))
   })
 
+  // ── Mention-item rows (add / per-field input / remove / reorder) ──
   on('#btn-add-mention', MOUSE_EVENTS.CLICK, () => host.addMentionItem())
   all(`.${CMS_ABOUT_CLASSES.MENTION_FIELD}`, (inp) => {
     const idx = parseInt(inp.getAttribute(DATA_ATTRS.DATA_IDX) || '0', 10)

@@ -56,9 +56,11 @@ report degrades independently if missing.
 
 `<cms-media-converter>` is a **localhost-only** batch converter — it exists only
 on the dev server (the API is a Vite plugin, never part of the built bundle).
-Drop a folder of images/videos in any format → files stream to a temp job dir →
+Drop a folder of images/videos/PDFs in any format → files stream to a temp job dir →
 the `tasks/*` pipelines run server-side → results download as a ZIP with the
 site's exact CDN naming (`-mozjpg*`, `.mp4-scaled*`, MSSIM blur-up variants).
+PDFs rasterize through poppler and merge every page into a single tall
+`{base}.png` plus a `{base}-thumb.png` portrait-natural page-1 preview.
 
 | File                                              | What it does                                                                                                    |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -69,24 +71,26 @@ site's exact CDN naming (`-mozjpg*`, `.mp4-scaled*`, MSSIM blur-up variants).
 
 ### Required external tools (per OS)
 
-The converter shells out to three tools; missing ones surface in the tab's
+The converter shells out to four tool groups; missing ones surface in the tab's
 tools panel (`GET /api/media-convert/tools`) with a copy/paste install command,
 and `yarn setup` prints the same hints before you ever open the CMS.
 
-| OS               | ffmpeg / ffprobe                     | ImageMagick                                      | mozjpeg / cjpeg                            |
-| ---------------- | ------------------------------------ | ------------------------------------------------ | ------------------------------------------ |
-| Debian/Ubuntu    | `sudo apt-get install ffmpeg`        | `sudo apt-get install imagemagick`               | `sudo apt-get install libjpeg-turbo-progs` |
-| Fedora/RHEL      | `sudo dnf install ffmpeg`            | `sudo dnf install ImageMagick`                   | `sudo dnf install libjpeg-turbo-utils`     |
-| macOS (brew)     | `brew install ffmpeg`                | `brew install imagemagick`                       | `brew install mozjpeg`                     |
-| Windows (winget) | `winget install -e --id Gyan.FFmpeg` | `winget install -e --id ImageMagick.ImageMagick` | `npm install -g mozjpeg`                   |
-| Windows (choco)  | `choco install ffmpeg`               | `choco install imagemagick`                      | `npm install -g mozjpeg`                   |
+| OS               | ffmpeg / ffprobe                     | ImageMagick                                      | mozjpeg / cjpeg                            | poppler / pdftoppm                              |
+| ---------------- | ------------------------------------ | ------------------------------------------------ | ------------------------------------------ | ----------------------------------------------- |
+| Debian/Ubuntu    | `sudo apt-get install ffmpeg`        | `sudo apt-get install imagemagick`               | `sudo apt-get install libjpeg-turbo-progs` | `sudo apt-get install poppler-utils`            |
+| Fedora/RHEL      | `sudo dnf install ffmpeg`            | `sudo dnf install ImageMagick`                   | `sudo dnf install libjpeg-turbo-utils`     | `sudo dnf install poppler-utils`                |
+| macOS (brew)     | `brew install ffmpeg`                | `brew install imagemagick`                       | `brew install mozjpeg`                     | `brew install poppler`                          |
+| Windows (winget) | `winget install -e --id Gyan.FFmpeg` | `winget install -e --id ImageMagick.ImageMagick` | `npm install -g mozjpeg`                   | `winget install -e --id oschwartz10612.Poppler` |
+| Windows (choco)  | `choco install ffmpeg`               | `choco install imagemagick`                      | `npm install -g mozjpeg`                   | `choco install poppler`                         |
 
 Windows has no winget/choco mozjpeg package — `npm install -g mozjpeg` drops a
 prebuilt `cjpeg.exe` into npm's global bin dir (already on PATH for any Node
 user). Alternatives: `vcpkg install mozjpeg`, or the win64 zip under
 [mozilla/mozjpeg releases](https://github.com/mozilla/mozjpeg/releases) added
 to PATH manually. `cjpeg` is optional — without it JPEGs re-encode through
-ffmpeg's `-q:v` ladder instead of mozjpeg's trellis quantizer.
+ffmpeg's `-q:v` ladder instead of mozjpeg's trellis quantizer. `pdftoppm` is
+optional the same way — only PDF rows fail without it (poppler rasterizes,
+ImageMagick still owns the page merge + thumbnail).
 
 On Windows the converter calls `magick` (not `convert`); on macOS/Linux it calls
 `convert`. PATH must be refreshed — restart the dev server after installing.

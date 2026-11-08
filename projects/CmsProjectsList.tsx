@@ -35,7 +35,12 @@ import {
 import type { CmsProject, CmsSection } from './types.js'
 
 /**
- * The CmsProjectsList — projects list class.
+ * <cms-projects-list> — the element facade for the projects editor:
+ * holds the state (locale, project key list, selected slug, normalized
+ * `currentProject`, saving flag) and delegates to `data.ts` (Firebase
+ * CRUD), `sections.ts` (model normalization + mutations), `events.ts`
+ * (wiring), `render.tsx`/`section-render.tsx` (JSX). Methods are thin
+ * pass-throughs so test spies share the delegated call path.
  */
 export class CmsProjectsList extends BaseComponent {
   languages: readonly string[] = VALID_LANGS // all editable locales

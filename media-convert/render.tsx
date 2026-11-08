@@ -18,8 +18,10 @@ import {
 } from '@cms/tokens.js'
 
 /**
- * Renders idle.
- * @param host — the host component
+ * Idle-phase template — the drop-zone (folder/file drag target + hidden
+ * Browse input) plus, once files are queued, the queue list (relative
+ * path + size per row) and the "Convert all" trigger.
+ * @param host — the host component holding `queue`
  */
 export function renderIdle(host: CmsMediaConverter) {
   return (
@@ -30,7 +32,7 @@ export function renderIdle(host: CmsMediaConverter) {
         </span>
         <p>Drag a folder or files here</p>
         <p class={CMS_FORM_CLASSES.CMS_HINT}>
-          Any image or video format — folder structure is preserved in the ZIP
+          Any image, video or PDF — folder structure is preserved in the ZIP
         </p>
         <label class={CMS_BUTTON_CLASSES.CMS_BTN_SECONDARY}>
           Browse…
@@ -114,8 +116,10 @@ export function renderConverting(host: CmsMediaConverter) {
 }
 
 /**
- * Renders done.
- * @param host — the host component
+ * Done-phase template — download/reset actions, the per-input output
+ * tree (source filename → each emitted derivative), and a separate
+ * error block for rows whose conversion failed.
+ * @param host — the host component holding `status.results`
  */
 export function renderDone(host: CmsMediaConverter) {
   const results = host.status?.results || []
@@ -172,8 +176,9 @@ export function renderDone(host: CmsMediaConverter) {
 }
 
 /**
- * Renders error.
- * @param host — the host component
+ * Error-phase template — the failure message plus either a partial-ZIP
+ * download (when some rows still succeeded) or a plain restart button.
+ * @param host — the host component holding `error` + `status`
  */
 export function renderError(host: CmsMediaConverter) {
   return (
@@ -285,8 +290,12 @@ export function renderTools(host: CmsMediaConverter) {
 }
 
 /**
- * Renders media converter.
- * @param host — the host component
+ * Top-level template — gates non-localhost renders to a notice card
+ * (the conversion API only exists on the dev server), then the title
+ * card, the toolchain setup panel, and the phase switch
+ * (idle/uploading/converting/done/error) with a busy spinner row for
+ * the two in-flight phases.
+ * @param host — the host component exposing `phase` + per-phase renders
  */
 export function renderMediaConverter(host: CmsMediaConverter) {
   if (!IS_LOCALHOST) {
@@ -307,9 +316,10 @@ export function renderMediaConverter(host: CmsMediaConverter) {
     <section class={CMS_CARD_CLASSES.CMS_CARD}>
       <h3 class={CMS_CARD_CLASSES.CMS_CARD_TITLE}>🎬 Media Converter</h3>
       <p class={CMS_CARD_CLASSES.CMS_CARD_SUBTITLE}>
-        Drop a folder of images/videos — outputs follow the CDN naming rules (
+        Drop a folder of images/videos/PDFs — outputs follow the CDN naming rules (
         <code>-mozjpg-*.jpg</code>, <code>.mp4-scaledown-2x.mp4</code>, <code>.jpg-thumb.jpg</code>)
-        and download as a ZIP. Localhost only.
+        and PDFs merge every page into one <code>.png</code> plus a <code>-thumb.png</code>, all
+        downloaded as a ZIP. Localhost only.
       </p>
 
       {host._renderTools()}

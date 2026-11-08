@@ -6,8 +6,11 @@ import { describe, test, expect, jest, beforeEach } from '@jest/globals'
 import { CMS_TAGS } from '@cms/tokens.js'
 import { SP_DB_DEFAULT_SEED } from '@earth/space/controls.js'
 
+/** Auth-state callbacks captured by the onAuthChange mock — tests fire them. */
 const authCallbacks = []
+/** Recorded {path, value} pairs the set() mock observed — write assertions. */
 const setCalls = []
+/** Opaque RTDB snapshot payload — the values are never asserted, only rendered. */
 const snapVal = { headingKey: 'x', bodyKey: 'y' }
 
 jest.unstable_mockModule('@core/firebase.js', () => ({
@@ -36,6 +39,7 @@ await import('@cms/routes/CmsDashboard.js')
 await import('@cms/lang/CmsLangEditor.js')
 await import('@cms/playground-editor/CmsPlaygroundEditor.js')
 
+/** Mounts a custom element by tag into document.body and returns it. */
 const mount = (tag) => {
   const el = document.createElement(tag)
 
@@ -44,6 +48,7 @@ const mount = (tag) => {
   return el
 }
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const _flush = (ms = 80) => new Promise((resolve) => setTimeout(resolve, ms))
 
 beforeEach(() => {

@@ -11,8 +11,11 @@ import { normalizeSection } from './sections.js'
 import { devError } from '@core/devlog.js'
 
 /**
- * Loads project keys.
- * @param host — the host component
+ * Reads the locale's `projects/` node, sorts the key list, and auto-
+ * selects the first project when none is chosen — then chains into
+ * `loadProjectData` so the editor opens populated. Empty nodes clear
+ * the selection and render the "no projects" state.
+ * @param host — the host component holding `projectKeys`/`currentProject`
  */
 export async function loadProjectKeys(host: CmsProjectsList) {
   try {
@@ -37,8 +40,11 @@ export async function loadProjectKeys(host: CmsProjectsList) {
 }
 
 /**
- * Loads project data.
- * @param host — the host component
+ * Reads one project's full record — normalizes `sections` (array or
+ * keyed map) through `normalizeSection` into the `[texts, media]` tuple
+ * shape the renderer and event writers both index into. Missing
+ * `cover`/`seo` nodes get token defaults so the form never reads holes.
+ * @param host — the host component holding `selectedProjectKey`
  */
 export async function loadProjectData(host: CmsProjectsList) {
   if (!host.selectedProjectKey) return
@@ -74,8 +80,11 @@ export async function loadProjectData(host: CmsProjectsList) {
 }
 
 /**
- * Creates project prompt.
- * @param host — the host component
+ * Creates a new project locally (not yet persisted) — prompts for the
+ * slug, sanitizes it to `[a-z0-9_-]`, seeds the model with a title,
+ * folder prefix, default cover, and empty sections, then selects it.
+ * The record lands in Firebase only on Save.
+ * @param host — the host component holding `projectKeys`/`currentProject`
  */
 export function createProjectPrompt(host: CmsProjectsList) {
   const key = prompt('Enter project identifier slug (e.g. "metcha", "melissa"):')
@@ -102,8 +111,11 @@ export function createProjectPrompt(host: CmsProjectsList) {
 }
 
 /**
- * Deletes project.
- * @param host — the host component
+ * Deletes the selected project across every locale — loops languages
+ * removing `projects/<key>` nodes (the slug is structural, so a partial
+ * delete would orphan other languages' copies), then reloads the key
+ * list so the selector lands on a valid entry.
+ * @param host — the host component holding `selectedProjectKey`
  */
 export async function deleteProject(host: CmsProjectsList) {
   if (!host.selectedProjectKey) return
@@ -128,8 +140,10 @@ export async function deleteProject(host: CmsProjectsList) {
 }
 
 /**
- * Saves project data.
- * @param host — the host component
+ * Writes the current project back to its locale node — the whole record
+ * (title/folder/seo/cover/sections) is replaced atomically since the
+ * editor owns the complete shape.
+ * @param host — the host component holding `currentProject`
  */
 export async function saveProjectData(host: CmsProjectsList) {
   if (!host.selectedProjectKey || !host.currentProject) return

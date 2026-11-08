@@ -23,6 +23,7 @@ jest.unstable_mockModule('@core/utils/service-worker.js', () => ({
   dropStaleServiceWorkers: jest.fn(),
 }))
 
+/** Boot mount point — main.ts requires an existing #cms-root element to mount into. */
 const root = document.createElement(HTML_TAGS.DIV)
 
 root.id = CMS_IDS.CMS_ROOT

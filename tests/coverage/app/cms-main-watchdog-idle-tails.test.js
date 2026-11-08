@@ -18,6 +18,7 @@ jest.unstable_mockModule('@core/firebase.js', () => ({
   getDbInstance: jest.fn(async () => ({ db: true })),
 }))
 
+/** Spy stand-in — the mock factory closes over this so tests assert calls. */
 const dropStaleServiceWorkers = jest.fn()
 
 jest.unstable_mockModule('@core/utils/service-worker.js', () => ({
@@ -26,6 +27,7 @@ jest.unstable_mockModule('@core/utils/service-worker.js', () => ({
 
 jest.useFakeTimers()
 
+/** Boot mount point — main.ts requires an existing #cms-root element to mount into. */
 const root = document.createElement(HTML_TAGS.DIV)
 
 root.id = CMS_IDS.CMS_ROOT

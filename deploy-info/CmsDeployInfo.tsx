@@ -42,7 +42,11 @@ import type {
 import cmsStyles from '@cms/sass/cms.scss?tiers'
 
 /**
- * The CmsDeployInfo — deploy info class.
+ * <cms-deploy-info> — the element facade for the Build tab: holds the
+ * fetch gate (`loading`/`missing`) plus the seven report payloads and
+ * delegates to `data.ts` (parallel fetch) and `render.tsx` (per-report
+ * JSX sections). Each report slot stays null when its file is absent
+ * from the bundle, so a partial deploy-info still renders.
  */
 export class CmsDeployInfo extends BaseComponent {
   _fetchState: DeployFetchState = 'loading'

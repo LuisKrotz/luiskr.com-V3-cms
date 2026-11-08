@@ -10,7 +10,9 @@ import { DRAG_EVENTS, FORM_EVENTS, MOUSE_EVENTS, WINDOW_EVENTS } from '@core/tok
 import { STATE_STRINGS } from '@core/tokens/strings/state.js'
 import { CMS_ITEM_CLASSES } from '@cms/tokens.js'
 
+/** Recorded values the set() mock observed — write assertions inspect this. */
 const setCalls = []
+/** Shared RTDB snapshot payload served by the get() mock for every read. */
 const snapVal = {
   title: TEST_TEXT.HEADING,
   sections: [{ text: [TEST_TEXT.BODY], media: [] }],
@@ -38,6 +40,7 @@ await import('@cms/footer/CmsFooterEditor.js')
 await import('@cms/portfolio/CmsPortfolioList.js')
 await import('@cms/media-convert/CmsMediaConverter.js')
 
+/** Mounts a custom element by tag into document.body and returns it. */
 const mount = (tag) => {
   const el = document.createElement(tag)
 
@@ -46,6 +49,7 @@ const mount = (tag) => {
   return el
 }
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 80) => new Promise((resolve) => setTimeout(resolve, ms))
 
 beforeEach(() => {

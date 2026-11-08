@@ -15,6 +15,7 @@ jest.unstable_mockModule('@core/firebase.js', () => ({
   getDbInstance: jest.fn(async () => ({ db: true })),
 }))
 
+/** Spy stand-in — the mock factory closes over this so tests assert calls. */
 const dropStaleServiceWorkers = jest.fn()
 
 jest.unstable_mockModule('@core/utils/service-worker.js', () => ({

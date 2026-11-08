@@ -19,6 +19,7 @@ import '@cms/lang/CmsLangEditor.js'
 import '@cms/footer/CmsFooterEditor.js'
 import '@cms/playground-editor/CmsPlaygroundEditor.js'
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 100) => new Promise((r) => setTimeout(r, ms))
 
 describe('CmsDeployInfo tails 2', () => {
@@ -37,7 +38,14 @@ describe('CmsDeployInfo tails 2', () => {
       },
     }
     el._updateDom?.()
-    el.lighthouse = { urls: [{ url: TEST_TEXT.SECOND, scores: { performance: 0.2, accessibility: 0.7, 'best-practices': 0.95, seo: undefined } }] }
+    el.lighthouse = {
+      urls: [
+        {
+          url: TEST_TEXT.SECOND,
+          scores: { performance: 0.2, accessibility: 0.7, 'best-practices': 0.95, seo: undefined },
+        },
+      ],
+    }
     el._updateDom?.()
 
     expect(el._renderLighthouse()).toBeTruthy()

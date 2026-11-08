@@ -15,11 +15,16 @@ import { TYPE_STRINGS } from '@core/tokens/strings/types.js'
 
 jest.unstable_mockModule('@core/firebase.js', () => ({
   signInWithGoogle: jest.fn(async () => ({ user: { uid: 'u1' } })),
-  onAuthChange: jest.fn(async (cb) => { cb(null); return () => {} }),
+  onAuthChange: jest.fn(async (cb) => {
+    cb(null)
+    return () => {}
+  }),
   logoutUser: jest.fn(async () => {}),
   fetchFirebaseDb: jest.fn(async () => ({ exists: () => false, val: () => null })),
-  getDbInstance: jest.fn(async () => ({})) }))
+  getDbInstance: jest.fn(async () => ({})),
+}))
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 60) => new Promise((r) => setTimeout(r, ms))
 
 describe('AdminLogin tails', () => {

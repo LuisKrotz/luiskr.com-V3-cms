@@ -19,8 +19,11 @@ import {
 } from '@cms/tokens.js'
 
 /**
- * Renders projects.
- * @param host — the host component
+ * Renders the projects case-study manager — header card (create/delete/save),
+ * language + project selectors, then, when a project is selected, the editor:
+ * basic fields, cover image/video config, and the per-section paragraph/media
+ * lists delegated to `renderSection` (one call per section index).
+ * @param host — the host component holding `currentProject`
  */
 export function renderProjects(host: CmsProjectsList) {
   const p = host.currentProject
@@ -178,7 +181,9 @@ export function renderProjects(host: CmsProjectsList) {
             )
           ),
 
-          // Cover
+          // Cover card — live thumbnail (resolved through the CDN `gcs`
+          // helper which switches to a video poster when `isVideo`) beside
+          // filename/label/type/dimension inputs.
           h(
             HTML_TAGS.DIV,
             { class: CMS_CARD_CLASSES.CMS_CARD },
@@ -303,6 +308,8 @@ export function renderProjects(host: CmsProjectsList) {
             h(
               HTML_TAGS.DIV,
               { class: CMS_PROJECTS_CLASSES.CMS_SECTIONS_LIST },
+              // Each section gets its own editor card; the total count lets
+              // renderSection disable the "move down" control on the last one.
               ...(p.sections || []).map((sec, sIdx) =>
                 renderSection(host, sec, sIdx, p.sections.length)
               )

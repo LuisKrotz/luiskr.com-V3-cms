@@ -9,8 +9,16 @@ import { DATA_ATTRS } from '@core/tokens/attrs/data.js'
 import { FORM_EVENTS, MOUSE_EVENTS } from '@core/tokens/events/dom.js'
 import type { CmsPlaygroundEditor } from './CmsPlaygroundEditor.js'
 
-/** Wires all inputs/buttons. Calls route through host methods so spies intercept. */
+/**
+ * Wires the playground editor — save/locale/add-key single bindings, then
+ * three delegated row groups: `.ep-value` label inputs and `.ep-del`
+ * buttons (keyed by `data-field`), `.slug-value` route-slug inputs, and
+ * the typed defaults (`.ep-def-num` numeric coerced, `.ep-def-bool`
+ * checkboxes). Host methods stay the call path so test spies intercept.
+ * @param ed — the CmsPlaygroundEditor exposing `addScopedListener` + `$`/`$$`
+ */
 export function bindEvents(ed: CmsPlaygroundEditor): void {
+  /** Single-element scoped listener, no-op when the selector misses. */
   const on = (sel: string, ev: string, fn: EventListener) => {
     const el = ed.$(sel)
 

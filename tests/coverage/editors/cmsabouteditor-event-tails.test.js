@@ -18,8 +18,10 @@ import { CMS_ABOUT_CLASSES } from '@cms/tokens.js'
 
 globalThis.alert = jest.fn()
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 80) => new Promise((r) => setTimeout(r, ms))
 
+/** Sets a value on a node then dispatches the event — one-call form fill. */
 const fire = (el, type, value) => {
   if (value !== undefined) el.value = value
 
@@ -75,12 +77,12 @@ describe('CmsAboutEditor event tails', () => {
       generateGravatarUrl: jest.spyOn(el, 'generateGravatarUrl'),
     }
 
-    qa(`.${CMS_ABOUT_CLASSES.PARA_REMOVE_BTN},.${CMS_ABOUT_CLASSES.PARA_UP_BTN},.${CMS_ABOUT_CLASSES.PARA_DOWN_BTN}`).forEach((b) =>
-      fire(b, MOUSE_EVENTS.CLICK)
-    )
-    qa(`.${CMS_ABOUT_CLASSES.MENTION_REMOVE_BTN},.${CMS_ABOUT_CLASSES.MENTION_UP_BTN},.${CMS_ABOUT_CLASSES.MENTION_DOWN_BTN}`).forEach((b) =>
-      fire(b, MOUSE_EVENTS.CLICK)
-    )
+    qa(
+      `.${CMS_ABOUT_CLASSES.PARA_REMOVE_BTN},.${CMS_ABOUT_CLASSES.PARA_UP_BTN},.${CMS_ABOUT_CLASSES.PARA_DOWN_BTN}`
+    ).forEach((b) => fire(b, MOUSE_EVENTS.CLICK))
+    qa(
+      `.${CMS_ABOUT_CLASSES.MENTION_REMOVE_BTN},.${CMS_ABOUT_CLASSES.MENTION_UP_BTN},.${CMS_ABOUT_CLASSES.MENTION_DOWN_BTN}`
+    ).forEach((b) => fire(b, MOUSE_EVENTS.CLICK))
     qa('.' + CMS_ABOUT_CLASSES.COL_ADD_BTN).forEach((b) => fire(b, MOUSE_EVENTS.CLICK))
     fire(q(`#${CMS_ABOUT_IDS.SAVE}`), MOUSE_EVENTS.CLICK)
     fire(q(`#${CMS_ABOUT_IDS.SYNC_PICTURE}`), MOUSE_EVENTS.CLICK)

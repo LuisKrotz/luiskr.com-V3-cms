@@ -10,6 +10,7 @@ import { describe, test, expect, jest, afterAll } from '@jest/globals'
 import { CMS_TAGS } from '@cms/tokens.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
 
+/** Original location.hostname descriptor — saved so tests can restore after stubbing a non-localhost origin. */
 const hostname = Object.getOwnPropertyDescriptor(window.location, 'hostname')
 
 Object.defineProperty(window.location, 'hostname', {

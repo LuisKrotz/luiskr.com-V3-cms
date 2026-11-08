@@ -39,7 +39,11 @@ export const fmtBytes = (n: number): string =>
   n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`
 
 /**
- * collects drop.
+ * Collects a drag-drop payload into the queue — prefers the
+ * `webkitGetAsEntry` path so a dropped folder recursively yields
+ * `{file, rel}` per descendant (preserving the tree the server rebuilds
+ * inside the ZIP); falls back to flat `dataTransfer.files` when entries
+ * aren't available. `isMediaPath` filters out non-media files.
  */
 export async function collectDrop(
   host: CmsMediaConverter,
@@ -68,9 +72,11 @@ export async function collectDrop(
 }
 
 /**
- * collects input.
- * @param host — the host component
- * @param input — the value
+ * Collects a `<input type=file>` selection — `webkitRelativePath`
+ * preserves subfolder structure when the picker was given a directory;
+ * otherwise the bare filename is the rel path. Same `isMediaPath` filter.
+ * @param host — the host component whose `queue` receives the items
+ * @param input — the file input element that fired change
  */
 export function collectInput(host: CmsMediaConverter, input: HTMLInputElement): void {
   for (const file of Array.from(input.files || [])) {

@@ -6,9 +6,11 @@ import type { CmsAboutEditor } from './CmsAboutEditor.js'
 import { emailToGravatarHash, type BioColumn } from './types.js'
 
 /**
- * Sets gravatar size.
- * @param host — the host component
- * @param size — the value
+ * Applies a Gravatar size — strips any existing `?s=`/`&s=` param from
+ * the stored URL (and a bare trailing `?` it would leave behind), then
+ * re-appends the new size so the stored URL always carries exactly one.
+ * @param host — the host component holding `aboutData.profilePicture`
+ * @param size — pixel edge Gravatar should return (drives `?s=N`)
  */
 export function setGravatarSize(host: CmsAboutEditor, size: number): void {
   host.gravatarSize = size
@@ -18,8 +20,10 @@ export function setGravatarSize(host: CmsAboutEditor, size: number): void {
 }
 
 /**
- * Generates gravatar url.
- * @param host — the host component
+ * Builds a Gravatar URL from the email field — SHA-256 hashes the
+ * trimmed/lowercased address (Gravatar's lookup key) and composes it
+ * with the current size so the preview matches what the site serves.
+ * @param host — the host component holding `emailInput`/`gravatarSize`
  */
 export async function generateGravatarUrl(host: CmsAboutEditor) {
   if (!host.emailInput.trim()) return
@@ -29,9 +33,10 @@ export async function generateGravatarUrl(host: CmsAboutEditor) {
 }
 
 /**
- * Adds paragraph.
- * @param host — the host component
- * @param col — the value
+ * Appends an empty paragraph to a bio column — the input rows write by
+ * index, so pushing an empty string creates the new row's bound slot.
+ * @param host — the host component holding `aboutData`
+ * @param col — `'col1'` (left) or `'col2'` (right)
  */
 export function addParagraph(host: CmsAboutEditor, col: BioColumn): void {
   host.aboutData[col] = [...(host.aboutData[col] || []), '']
@@ -39,10 +44,10 @@ export function addParagraph(host: CmsAboutEditor, col: BioColumn): void {
 }
 
 /**
- * Removes paragraph.
- * @param host — the host component
- * @param col — the value
- * @param idx — the index
+ * Drops the paragraph at `idx` from a bio column and re-renders the list.
+ * @param host — the host component holding `aboutData`
+ * @param col — `'col1'` (left) or `'col2'` (right)
+ * @param idx — zero-based paragraph index
  */
 export function removeParagraph(host: CmsAboutEditor, col: BioColumn, idx: number): void {
   host.aboutData[col] = host.aboutData[col].filter((_, i) => i !== idx)
@@ -50,7 +55,8 @@ export function removeParagraph(host: CmsAboutEditor, col: BioColumn, idx: numbe
 }
 
 /**
- * Moves paragraph.
+ * Swaps a paragraph with its neighbor — `dir` is -1 (up) or +1 (down);
+ * out-of-bounds targets return early so the edge buttons are also safe.
  */
 export function moveParagraph(
   host: CmsAboutEditor,
@@ -67,8 +73,9 @@ export function moveParagraph(
 }
 
 /**
- * Adds mention item.
- * @param host — the host component
+ * Appends a blank mention (description/link/icon) — the three-field row
+ * renders from these keys via `data-field` binding.
+ * @param host — the host component holding `aboutData.mention_items`
  */
 export function addMentionItem(host: CmsAboutEditor) {
   host.aboutData.mention_items = [
@@ -79,9 +86,9 @@ export function addMentionItem(host: CmsAboutEditor) {
 }
 
 /**
- * Removes mention item.
- * @param host — the host component
- * @param idx — the index
+ * Drops the mention at `idx` from the awards list and re-renders.
+ * @param host — the host component holding `aboutData.mention_items`
+ * @param idx — zero-based mention index
  */
 export function removeMentionItem(host: CmsAboutEditor, idx: number): void {
   host.aboutData.mention_items = host.aboutData.mention_items.filter((_, i) => i !== idx)
@@ -89,10 +96,11 @@ export function removeMentionItem(host: CmsAboutEditor, idx: number): void {
 }
 
 /**
- * Moves mention item.
- * @param host — the host component
- * @param idx — the index
- * @param dir — the value
+ * Swaps a mention with its neighbor — `dir` is -1 (up) or +1 (down);
+ * out-of-bounds targets return early.
+ * @param host — the host component holding `aboutData.mention_items`
+ * @param idx — zero-based mention index
+ * @param dir — -1 or +1
  */
 export function moveMentionItem(host: CmsAboutEditor, idx: number, dir: number): void {
   const arr = [...(host.aboutData.mention_items || [])]

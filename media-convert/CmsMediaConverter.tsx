@@ -48,26 +48,31 @@ import {
 // dev/preview server — on the deployed site the regex fails and the
 // component renders its "localhost only" notice instead.
 /**
- * Returns whether localhost.
- * @param localhost — the value
+ * Dev-server gate — the `/api/media-convert` routes only exist on vite's
+ * dev/preview server, so on the deployed site this regex fails and the
+ * component renders its "localhost only" notice instead of the tool.
  */
 export const IS_LOCALHOST = /^(localhost|127\.0\.0\.1|\[?::1\]?)$/.test(window.location.hostname)
 
 /**
- * The CmsMediaConverter component.
+ * <cms-media-converter> — the element facade for the media converter:
+ * holds the phase machine (idle → uploading → converting → done/error),
+ * the queue, the server job handle + poll timer, and the toolchain
+ * report state — delegating to `files.ts` (input collection),
+ * `job.ts` (HTTP + polling), `events.ts` (wiring), `render.tsx` (JSX).
  */
 export class CmsMediaConverter extends BaseComponent {
-  phase: string = PHASE.IDLE
-  queue: QueueItem[] = [] // [{ file, rel }]
-  jobId: string | null = null
-  uploaded = 0
+  phase: string = PHASE.IDLE // current step in the idle→upload→convert→done machine
+  queue: QueueItem[] = [] // [{ file, rel }] — picked files + their folder-relative paths
+  jobId: string | null = null // server-side temp job dir handle
+  uploaded = 0 // files POSTed so far (drives the upload progress bar)
   status: JobStatus | null = null // server job status payload
   tools: ToolsReport | null = null // dev-server toolchain report (null = hidden)
   toolsInstalling = false // install-plan spawn running — disables setup buttons
   installLog: string = CHAR_STRINGS.EMPTY // install stdout/stderr shown in the panel
-  dragging = false
-  error: string = CHAR_STRINGS.EMPTY
-  _pollTimer: ReturnType<typeof setTimeout> | null = null
+  dragging = false // drop-zone hover state — drives the --over highlight
+  error: string = CHAR_STRINGS.EMPTY // last failure message rendered by renderError
+  _pollTimer: ReturnType<typeof setTimeout> | null = null // pending status-poll timeout
 
   constructor() {
     super(cmsStyles)

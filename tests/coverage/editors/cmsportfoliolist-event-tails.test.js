@@ -18,8 +18,10 @@ import { CMS_PORTFOLIO_CLASSES } from '@cms/tokens.js'
 
 globalThis.alert = jest.fn()
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 80) => new Promise((r) => setTimeout(r, ms))
 
+/** Sets a value on a node then dispatches the event — one-call form fill. */
 const fire = (el, type, value) => {
   if (value !== undefined) el.value = value
 
@@ -86,7 +88,11 @@ describe('CmsPortfolioList event tails', () => {
     })
 
     // attr-fallback arms: bound classes without data-* attributes
-    const strayClasses = [CMS_PORTFOLIO_CLASSES.ITEM_FIELD, CMS_PORTFOLIO_CLASSES.DIM_FIELD, CMS_PORTFOLIO_CLASSES.FEAT_SELECT]
+    const strayClasses = [
+      CMS_PORTFOLIO_CLASSES.ITEM_FIELD,
+      CMS_PORTFOLIO_CLASSES.DIM_FIELD,
+      CMS_PORTFOLIO_CLASSES.FEAT_SELECT,
+    ]
     const strays = strayClasses.map((cls) => {
       const s = document.createElement('input')
 

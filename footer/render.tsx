@@ -13,7 +13,11 @@ import { h } from '@core/jsx.js'
 import type { CmsFooterEditor } from './CmsFooterEditor.js'
 import { CMS_BUTTON_CLASSES, CMS_CARD_CLASSES, CMS_FORM_CLASSES } from '@cms/tokens.js'
 
-/** Section card shell: numbered title + subtitle + optional header action. */
+/**
+ * Section card shell: numbered title + subtitle + optional header action
+ * (usually a sync/add button). Shared by all three footer sections so the
+ * card chrome is declared once.
+ */
 const sectionCard = (title: string, subtitle: string, action: unknown, ...children: unknown[]) =>
   h(
     HTML_TAGS.DIV,
@@ -32,7 +36,12 @@ const sectionCard = (title: string, subtitle: string, action: unknown, ...childr
     ...children
   )
 
-/** Titled subsection wrapping one channel list. */
+/**
+ * Titled subsection wrapping one channel list — bridges to the host's
+ * `_renderChannelList` (in `lists.ts`) which emits the per-row controls;
+ * `prefix`/`labelField`/`extraField` select which model slice the rows
+ * write back to.
+ */
 const listSection = (
   host: CmsFooterEditor,
   title: string,
@@ -53,7 +62,13 @@ const listSection = (
     host._renderChannelList(arr as never, prefix, addLabel, labelField as string, extraField)
   )
 
-/** JSX template. */
+/**
+ * Top-level template for the footers editor — header + save, language
+ * picker, then three section cards: homepage contact footer (title/
+ * subtitle + two channel lines), legal navigation links, and the
+ * case-study footer (title, disclaimer note, socials).
+ * @param host — the CmsFooterEditor hosting the data slices
+ */
 export function renderFooterEditor(host: CmsFooterEditor) {
   return h(
     HTML_TAGS.DIV,

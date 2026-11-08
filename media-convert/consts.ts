@@ -25,8 +25,9 @@ export const PHASE = Object.freeze({
 /** Job-status poll cadence — fast enough for live progress, light on the dev server. */
 export const POLL_MS = 800
 
-/** File-picker accept filter covering every input format ffmpeg accepts. */
-export const MIME_HINT = 'image/*,video/*,.mov,.mkv,.webm,.avi,.m4v,.heic,.avif,.tif,.tiff'
+/** File-picker accept filter covering every input format the pipeline accepts. */
+export const MIME_HINT =
+  'image/*,video/*,.mov,.mkv,.webm,.avi,.m4v,.heic,.avif,.tif,.tiff,.pdf,application/pdf'
 
 /** Re-export of the shared empty-string token for this module's API. */
 export const EMPTY = CHAR_STRINGS.EMPTY
@@ -43,13 +44,16 @@ export interface QueueItem {
  * Tool rows rendered by the setup panel — [label, tools-map keys]. Order
  * is display order; required entries block conversion when missing.
  * `imagemagick` collapses the platform split: `magick` (win32/IM7) or
- * `convert` (POSIX/IM6) both satisfy it.
+ * `convert` (POSIX/IM6) both satisfy it. `pdftoppm` (poppler) is only
+ * needed when PDFs enter the batch, so it reports optional — a missing
+ * row fails the dropped PDFs, never the whole converter.
  */
 export const TOOL_ROWS = Object.freeze([
   { label: 'ffmpeg', keys: ['ffmpeg'], required: true },
   { label: 'ffprobe', keys: ['ffprobe'], required: true },
   { label: 'ImageMagick', keys: ['magick', 'convert'], required: false },
   { label: 'mozjpeg cjpeg', keys: ['cjpeg'], required: false },
+  { label: 'poppler pdftoppm', keys: ['pdftoppm'], required: false },
 ])
 
 /** Server payload from GET /api/media-convert/tools (shared/scripts/media-convert/install.js). */

@@ -23,7 +23,10 @@ import { CMS_BUTTON_CLASSES, CMS_CARD_CLASSES, CMS_FORM_CLASSES } from '@cms/tok
 import { devError } from '@core/devlog.js'
 
 /**
- * The CmsLangEditor — lang editor class.
+ * <cms-lang-editor> — the raw-JSON escape hatch: locale + node pickers
+ * select a translations subtree, the textarea edits it as pretty-printed
+ * JSON, and save parses-then-writes so a syntax error aborts before any
+ * malformed blob reaches the site.
  */
 export class CmsLangEditor extends BaseComponent {
   languages: readonly string[] = VALID_LANGS // all editable locales
@@ -93,7 +96,7 @@ export class CmsLangEditor extends BaseComponent {
     }
   }
 
-  /** Wires inputs + save button. */
+  /** Save/lang/node/textarea bindings — scoped so re-render re-binds cleanly. */
 
   private _bindEvents(): void {
     const saveBtn = this.$('#btn-save-lang')
@@ -123,7 +126,7 @@ export class CmsLangEditor extends BaseComponent {
     }
   }
 
-  /** JSX template. */
+  /** Header + save, two pickers (locale, node), and the JSON textarea card. */
 
   override render() {
     return h(

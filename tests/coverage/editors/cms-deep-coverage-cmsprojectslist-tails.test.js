@@ -12,15 +12,20 @@ import { STATE_STRINGS } from '@core/tokens/strings/state.js'
 import { DB_PATHS } from '@core/tokens/routes/paths.js'
 import { ATTR_VALUES } from '@core/tokens/attrs/values.js'
 
+/** Auth-state callbacks captured by the onAuthChange mock — tests fire them. */
 const authCallbacks = []
+/** Recorded {path, value} pairs the set() mock observed — write assertions. */
 const setCalls = []
+/** Recorded paths the remove() mock observed — delete assertions. */
 const removeCalls = []
 
 // Path-keyed snapshot routing: each test registers matchers against the
 // Firebase path fragment so one `get` mock can serve different nodes.
 const snapRoutes = []
+/** Fallback snapshot payload when no registered route matches the path. */
 const defaultVal = { title: TEST_TEXT.HEADING }
 
+/** RTDB snapshot stub — exists()/val() matching the SDK's DataSnapshot. */
 const snapOf = (val, exists = true) => ({ exists: () => exists, val: () => val })
 
 jest.unstable_mockModule('@core/firebase.js', () => ({
@@ -65,6 +70,7 @@ await import('@cms/deploy-info/CmsDeployInfo.js')
 await import('@cms/routes/CmsDashboard.js')
 await import('@cms/routes/AdminLogin.js')
 
+/** Mounts a custom element by tag into document.body and returns it. */
 const mount = (tag) => {
   const el = document.createElement(tag)
 
@@ -73,9 +79,12 @@ const mount = (tag) => {
   return el
 }
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 80) => new Promise((resolve) => setTimeout(resolve, ms))
 
+/** Recorded alert() messages — the alert stub pushes here. */
 const alerts = []
+/** Queued confirm() return values — the confirm stub shift()s them. */
 const confirms = []
 
 beforeEach(() => {
@@ -93,6 +102,7 @@ beforeEach(() => {
   globalThis.prompt = () => null
 })
 
+/** Sets a value on a shadow-DOM node then dispatches the event — one-call form fill. */
 const fire = (el, sel, eventType, value) => {
   const node = el.shadowRoot.querySelector(sel)
 

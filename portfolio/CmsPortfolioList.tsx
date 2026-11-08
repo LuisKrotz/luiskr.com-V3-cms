@@ -20,7 +20,11 @@ import { renderItem, renderPortfolioList } from './render.js'
 import type { PortfolioItem } from './types.js'
 
 /**
- * The CmsPortfolioList — portfolio list class.
+ * <cms-portfolio-list> — the element facade for the portfolio editor:
+ * holds the locale + normalized `items` model and delegates to
+ * `data.ts` (load/save/cross-locale sync), `model.ts` (item mutations
+ * + CDN preview), `events.ts` (wiring), and `render.tsx` (JSX).
+ * Methods are thin pass-throughs so test spies share the call path.
  */
 export class CmsPortfolioList extends BaseComponent {
   languages: readonly string[] = VALID_LANGS // all editable locales

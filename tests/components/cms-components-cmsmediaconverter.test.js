@@ -63,8 +63,11 @@ const DB = {
   },
 }
 
+/** Recorded values the set() mock observed — write assertions inspect this. */
 const setCalls = []
+/** Recorded paths the remove() mock observed — delete assertions. */
 const removeCalls = []
+/** Recorded paths the get() mock observed — read assertions. */
 const getCalls = []
 
 jest.unstable_mockModule('firebase/app', () => ({
@@ -103,6 +106,7 @@ await import('@cms/portfolio/CmsPortfolioList.js')
 await import('@cms/media-convert/CmsMediaConverter.js')
 await import('@cms/deploy-info/CmsDeployInfo.js')
 
+/** Mounts an element by tag and waits 60ms for its async mount lifecycle to settle. */
 const mount = async (El) => {
   const el = document.createElement(El)
   document.body.appendChild(el)

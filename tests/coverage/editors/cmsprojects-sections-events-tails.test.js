@@ -15,13 +15,25 @@ import '@cms/playground-editor/CmsPlaygroundEditor.js'
 import '@cms/footer/CmsFooterEditor.js'
 import '@cms/deploy-info/CmsDeployInfo.js'
 
-import { addSection, addSectionMedia, addSectionText, ensureSectionShape, moveSection, normalizeSection, removeSection, removeSectionMedia, removeSectionText } from '@cms/projects/sections.js'
+import {
+  addSection,
+  addSectionMedia,
+  addSectionText,
+  ensureSectionShape,
+  moveSection,
+  normalizeSection,
+  removeSection,
+  removeSectionMedia,
+  removeSectionText,
+} from '@cms/projects/sections.js'
 import { CMS_PROJECTS_CLASSES } from '@cms/tokens.js'
 
 globalThis.alert = jest.fn()
 
+/** Generous flush — mounted render queues need real timers past microtasks. */
 const flush = (ms = 80) => new Promise((r) => setTimeout(r, ms))
 
+/** Sets a value on a node then dispatches the event — one-call form fill. */
 const fire = (el, type, value) => {
   if (value !== undefined) el.value = value
 
@@ -40,7 +52,10 @@ describe('CmsProjects sections + events tails', () => {
 
   test('normalizeSection covers array/object/invalid arms', () => {
     expect(normalizeSection([['a'], []])).toEqual([['a'], []])
-    expect(normalizeSection({ texts: ['x'], media: [{ src: 's' }] })).toEqual([['x'], [{ src: 's' }]])
+    expect(normalizeSection({ texts: ['x'], media: [{ src: 's' }] })).toEqual([
+      ['x'],
+      [{ src: 's' }],
+    ])
     expect(normalizeSection({})).toEqual([[], []])
     expect(normalizeSection(null)).toEqual([[], []])
     expect(normalizeSection(['notpair'])).toEqual([[], []])
@@ -93,9 +108,7 @@ describe('CmsProjects sections + events tails', () => {
     await flush()
 
     el.currentProject = {
-      sections: [
-        [['t1'], [{ src: 's', label: 'l', isVideo: false, size: [1920, 1080] }]],
-      ],
+      sections: [[['t1'], [{ src: 's', label: 'l', isVideo: false, size: [1920, 1080] }]]],
     }
 
     el._updateDom()
