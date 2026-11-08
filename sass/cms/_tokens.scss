@@ -14,7 +14,7 @@
 // :root additionally covers the document when this sheet is linked page-wide.
 :host,
 :root {
-  --font-primary: 'Raleway', sans-serif;
+  --font-primary: #{$font-sans};
   --text-primary: #{$cms-text-primary};
 
   --skel-bg-1: #{$cms-bg-card};
@@ -71,7 +71,7 @@ body {
   min-height: 100vh;
   background-color: $cms-bg-darkest;
   color: $cms-text-primary;
-  font-family: 'Raleway', sans-serif;
+  font-family: #{$font-sans};
   -webkit-font-smoothing: antialiased;
 }
 
@@ -100,11 +100,7 @@ body {
   min-height: 100vh;
   background-color: $cms-bg-darkest;
   color: $cms-text-primary;
-  font-family:
-    'Raleway',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: #{$font-sans};
   display: flex;
   flex-direction: column;
 }

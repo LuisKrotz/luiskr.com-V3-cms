@@ -83,6 +83,7 @@ export const CMS_FIELD_KEYS = Object.freeze({
   PAGE: 'page',
   NETWORK: 'network',
   LINK: 'link',
+  CAPTION: 'caption',
 })
 
 // Editable translation nodes in the Language Dictionary editor — every

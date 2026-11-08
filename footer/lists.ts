@@ -53,14 +53,16 @@ export function moveItem(
  * social-*) so bindListEvents can bind by convention; `labelField`
  * picks which property holds the row label ('description' for contact
  * channels, 'page' for legal links, 'network' for socials) — matching
- * each DB shape exactly.
+ * each DB shape exactly. `extraField` adds an optional third input bound
+ * to that property (contact line-1 'caption').
  */
 export function renderChannelList(
   host: CmsFooterEditor,
   arr: FooterChannel[],
   prefix: string,
   addFn: string,
-  labelField: string = CMS_FIELD_KEYS.DESCRIPTION
+  labelField: string = CMS_FIELD_KEYS.DESCRIPTION,
+  extraField?: string
 ) {
   return h(
     HTML_TAGS.DIV,
@@ -85,6 +87,14 @@ export function renderChannelList(
           value: item.link || CHAR_STRINGS.EMPTY,
           placeholder: 'Value / URL',
         }),
+        extraField
+          ? h(HTML_TAGS.INPUT, {
+              class: `${CMS_FORM_CLASSES.CMS_INPUT} ${prefix}-extra`,
+              [DATA_ATTRS.DATA_IDX]: idx,
+              value: String(item[extraField] ?? CHAR_STRINGS.EMPTY),
+              placeholder: 'Caption (optional)',
+            })
+          : null,
         h(
           HTML_TAGS.DIV,
           { class: CMS_ITEM_CLASSES.CMS_ITEM_CONTROLS },
@@ -136,7 +146,8 @@ export function bindListEvents(
   host: CmsFooterEditor,
   prefix: string,
   arr: FooterChannel[],
-  labelField: string = CMS_FIELD_KEYS.DESCRIPTION
+  labelField: string = CMS_FIELD_KEYS.DESCRIPTION,
+  extraField?: string
 ): void {
   const idxOf = (el: Element): number =>
     parseInt(el.getAttribute(DATA_ATTRS.DATA_IDX) || CHAR_STRINGS.ZERO, 10)
@@ -148,6 +159,16 @@ export function bindListEvents(
       if (arr[idx]) arr[idx][labelField] = (e.target as HTMLInputElement).value
     })
   })
+
+  if (extraField) {
+    host.$$(`.${prefix}-extra`).forEach((inp) => {
+      const idx = idxOf(inp)
+
+      host.addScopedListener(inp, FORM_EVENTS.INPUT, (e) => {
+        if (arr[idx]) arr[idx][extraField] = (e.target as HTMLInputElement).value
+      })
+    })
+  }
 
   host.$$(`.${prefix}-link`).forEach((inp) => {
     const idx = idxOf(inp)

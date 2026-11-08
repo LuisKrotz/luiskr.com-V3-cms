@@ -4,7 +4,7 @@
  * links, case-study footer) each hosting a channel list.
  */
 
-import { CMS_LIST_PREFIXES } from '@cms/tokens.js'
+import { CMS_LIST_PREFIXES, CMS_FIELD_KEYS } from '@cms/tokens.js'
 import { FORM_ATTRS } from '@core/tokens/attrs/form.js'
 import { HTML_TAGS } from '@core/tokens/elements/html.js'
 import { CHAR_STRINGS } from '@core/tokens/strings/chars.js'
@@ -39,7 +39,8 @@ const listSection = (
   arr: unknown[],
   prefix: string,
   addLabel: string,
-  labelField?: string
+  labelField?: string,
+  extraField?: string
 ) =>
   h(
     HTML_TAGS.DIV,
@@ -49,7 +50,7 @@ const listSection = (
       { class: CMS_FORM_CLASSES.CMS_SUBSECTION_HEADER },
       h(HTML_TAGS.SPAN, { class: CMS_FORM_CLASSES.CMS_SUBSECTION_TITLE }, title)
     ),
-    host._renderChannelList(arr as never, prefix, addLabel, labelField as string)
+    host._renderChannelList(arr as never, prefix, addLabel, labelField as string, extraField)
   )
 
 /** JSX template. */
@@ -127,12 +128,25 @@ export function renderFooterEditor(host: CmsFooterEditor) {
           placeholder: NAV_TEXT.CONTACT,
         })
       ),
+      h(
+        HTML_TAGS.DIV,
+        { class: CMS_FORM_CLASSES.CMS_FIELD_GROUP },
+        h(HTML_TAGS.LABEL, null, 'Contact Subtitle'),
+        h(HTML_TAGS.INPUT, {
+          id: 'contact-subtitle-input',
+          class: CMS_FORM_CLASSES.CMS_INPUT,
+          value: host.contactData.subtitle || CHAR_STRINGS.EMPTY,
+          placeholder: "Let's create something extraordinary",
+        })
+      ),
       listSection(
         host,
         `Line 1: Contact & Social Channels (${host.contactData.line1.length})`,
         host.contactData.line1,
         CMS_LIST_PREFIXES.LINE1,
-        'Channel'
+        'Channel',
+        undefined,
+        CMS_FIELD_KEYS.CAPTION
       ),
       listSection(
         host,

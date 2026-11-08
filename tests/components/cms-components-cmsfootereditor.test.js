@@ -9,6 +9,7 @@ import { TEST_PROJECTS } from '@tests/fixtures/test-constants.js'
 import { NAV_TEXT } from '@core/tokens/strings/text.js'
 import { ROUTE_PATHS } from '@core/tokens/routes/paths.js'
 import { APP_IDS } from '@core/tokens/ids/app.js'
+import { FORM_EVENTS } from '@core/tokens/events/dom.js'
 
 // Path-keyed DB fixture — `get(child(ref(db), path))` resolves from here.
 const DB = {
@@ -124,5 +125,18 @@ describe('CmsFooterEditor', () => {
 
   test('renders editor sections', () => {
     expect(el.shadowRoot.innerHTML.length).toBeGreaterThan(100)
+
+    const sub = el.shadowRoot.querySelector('#contact-subtitle-input')
+    sub.value = 'Sub'
+    sub.dispatchEvent(new Event(FORM_EVENTS.INPUT))
+    expect(el.contactData.subtitle).toBe('Sub')
+
+    const extra = el.shadowRoot.querySelector('.line1-extra')
+    extra.value = 'Cap'
+    extra.dispatchEvent(new Event(FORM_EVENTS.INPUT))
+    expect(el.contactData.line1[0].caption).toBe('Cap')
+
+    el.contactData.line1.length = 0
+    extra.dispatchEvent(new Event(FORM_EVENTS.INPUT))
   })
 })

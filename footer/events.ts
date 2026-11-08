@@ -28,6 +28,9 @@ export function bindEvents(host: CmsFooterEditor): void {
   on('#contact-title-input', FORM_EVENTS.INPUT, (e) => {
     host.contactData.title = (e.target as HTMLInputElement).value
   })
+  on('#contact-subtitle-input', FORM_EVENTS.INPUT, (e) => {
+    host.contactData.subtitle = (e.target as HTMLInputElement).value
+  })
   on('#related-title-input', FORM_EVENTS.INPUT, (e) => {
     host.relatedFooter.title = (e.target as HTMLInputElement).value
   })
@@ -42,7 +45,12 @@ export function bindEvents(host: CmsFooterEditor): void {
       link: CHAR_STRINGS.EMPTY,
     })
   )
-  host._bindListEvents(CMS_LIST_PREFIXES.LINE1, host.contactData.line1)
+  host._bindListEvents(
+    CMS_LIST_PREFIXES.LINE1,
+    host.contactData.line1,
+    CMS_FIELD_KEYS.DESCRIPTION,
+    CMS_FIELD_KEYS.CAPTION
+  )
 
   // Line 2 sub-links
   on(`.${CMS_LIST_PREFIXES.LINE2}-add`, MOUSE_EVENTS.CLICK, () =>

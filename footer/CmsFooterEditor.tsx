@@ -30,8 +30,13 @@ export class CmsFooterEditor extends BaseComponent {
   syncing = false // cross-locale sync in flight
 
   // Section 1: Main Contact Footer — components/contact:
-  //   {title, line1:[{description,link}], line2:[{description,link}]}
-  contactData: ContactData = { title: NAV_TEXT.CONTACT, line1: [], line2: [] }
+  //   {title, subtitle, line1:[{description,link,caption}], line2:[{description,link}]}
+  contactData: ContactData = {
+    title: NAV_TEXT.CONTACT,
+    subtitle: CHAR_STRINGS.EMPTY,
+    line1: [],
+    line2: [],
+  }
   // Section 2: Legal Footer Navigation — components/legal-footer:
   //   {links:[{page,link}]} — 'page' is the label the site renders
   legalLinks: FooterChannel[] = []
@@ -113,14 +118,25 @@ export class CmsFooterEditor extends BaseComponent {
    * One editable channel list — see footer/lists.ts for the
    * prefix-namespaced row markup.
    */
-  _renderChannelList(arr: FooterChannel[], prefix: string, addFn: string, labelField?: string) {
-    return renderChannelList(this, arr, prefix, addFn, labelField)
+  _renderChannelList(
+    arr: FooterChannel[],
+    prefix: string,
+    addFn: string,
+    labelField?: string,
+    extraField?: string
+  ) {
+    return renderChannelList(this, arr, prefix, addFn, labelField, extraField)
   }
 
   /** Wires add/remove/move/input handlers for a rendered list. */
 
-  _bindListEvents(prefix: string, arr: FooterChannel[], labelField?: string): void {
-    bindListEvents(this, prefix, arr, labelField)
+  _bindListEvents(
+    prefix: string,
+    arr: FooterChannel[],
+    labelField?: string,
+    extraField?: string
+  ): void {
+    bindListEvents(this, prefix, arr, labelField, extraField)
   }
 
   /** Wires the whole form. */

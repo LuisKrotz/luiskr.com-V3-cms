@@ -15,15 +15,18 @@ export interface FooterChannel {
   page?: string
   network?: string
   link?: string
+  /** Optional muted caption under the link — line-1 rows. */
+  caption?: string
   [key: string]: unknown
 }
 
 /**
- * The components/contact DB node — `title` plus two channel columns
- * (`line1`/`line2`) rendered side by side in the footer.
+ * The components/contact DB node — `title` + `subtitle` plus two channel
+ * columns (`line1`/`line2`) rendered side by side in the footer.
  */
 export interface ContactData {
   title: string
+  subtitle?: string
   line1: FooterChannel[]
   line2: FooterChannel[]
 }

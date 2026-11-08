@@ -30,10 +30,11 @@ export async function loadAllData(host: CmsFooterEditor): Promise<void> {
     host.contactData = contactSnap.exists()
       ? {
           title: contactSnap.val().title || NAV_TEXT.CONTACT,
+          subtitle: contactSnap.val().subtitle || CHAR_STRINGS.EMPTY,
           line1: Array.isArray(contactSnap.val().line1) ? [...contactSnap.val().line1] : [],
           line2: Array.isArray(contactSnap.val().line2) ? [...contactSnap.val().line2] : [],
         }
-      : { title: NAV_TEXT.CONTACT, line1: [], line2: [] }
+      : { title: NAV_TEXT.CONTACT, subtitle: CHAR_STRINGS.EMPTY, line1: [], line2: [] }
 
     host.legalLinks =
       legalSnap.exists() && Array.isArray(legalSnap.val().links) ? [...legalSnap.val().links] : []
