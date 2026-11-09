@@ -14,7 +14,9 @@
 // :root additionally covers the document when this sheet is linked page-wide.
 :host,
 :root {
-  --font-primary: #{$font-sans};
+  // CMS face — Jost (Google Fonts link in cms/index.html) leading the
+  // site's sans fallback ladder; Poiret One is never loaded in this document.
+  --font-primary: 'Jost', #{$font-sans};
   --text-primary: #{$cms-text-primary};
 
   --skel-bg-1: #{$cms-bg-card};
@@ -71,7 +73,7 @@ body {
   min-height: 100vh;
   background-color: $cms-bg-darkest;
   color: $cms-text-primary;
-  font-family: #{$font-sans};
+  font-family: var(--font-primary);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -100,7 +102,7 @@ body {
   min-height: 100vh;
   background-color: $cms-bg-darkest;
   color: $cms-text-primary;
-  font-family: #{$font-sans};
+  font-family: var(--font-primary);
   display: flex;
   flex-direction: column;
 }
