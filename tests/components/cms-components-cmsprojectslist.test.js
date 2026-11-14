@@ -22,6 +22,9 @@ const DB = {
     seo: { noIndex: false },
     cover: { src: 'cover', label: 'Metcha Cover', size: [1920, 1080], isVideo: false },
     sections: [{ type: 'media-text', title: 'Intro' }],
+    // Git-derived publication stamps — the record the editor preserves.
+    date: '2026-08-11T14:35:01-03:00',
+    modified: '2026-10-27T00:58:59-03:00',
   },
   [`translations/${LOCALES.EN}/projects/${TEST_PROJECTS.CICB}`]: {
     title: 'CICB',
@@ -164,6 +167,28 @@ describe('CmsProjectsList', () => {
     const call = setCalls.find((c) => c.path.includes(TEST_PROJECTS.METCHA))
     expect(call).toBeDefined()
     expect(call.data.title).toBe('Metcha Updated')
+    // The git-derived publication stamp passes through untouched;
+    // `modified` re-stamps fresh on every save.
+    expect(call.data.date).toBe('2026-08-11T14:35:01-03:00')
+    expect(call.data.modified).not.toBe('2026-10-27T00:58:59-03:00')
+    expect(Number.isNaN(+new Date(call.data.modified))).toBe(false)
+  })
+
+  test('saveProjectData stamps date on the first save when absent', async () => {
+    el.selectedProjectKey = TEST_PROJECTS.CICB
+    await el.loadProjectData()
+
+    expect(el.currentProject.date).toBeUndefined()
+
+    await el.saveProjectData()
+
+    const call = setCalls.find((c) => c.path.includes(TEST_PROJECTS.CICB))
+
+    // A CMS-created project never touched git — its first save IS the
+    // publication moment, so date + modified stamp together.
+    expect(call.data.date).toBeTruthy()
+    expect(call.data.date).toBe(call.data.modified)
+    expect(Number.isNaN(+new Date(call.data.date))).toBe(false)
   })
 
   test('deleteProject removes the key across all languages', async () => {

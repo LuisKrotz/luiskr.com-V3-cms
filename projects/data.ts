@@ -68,6 +68,11 @@ export async function loadProjectData(host: CmsProjectsList) {
         seo: val.seo || { noIndex: false },
         cover: val.cover || defaultCover(),
         sections: rawSections.map((s: unknown) => normalizeSection(s)),
+        // Publication stamps ride the record through the editor so a
+        // save never erases the git-derived `date`; absent on legacy
+        // nodes — consumers gate on presence.
+        ...(val.date ? { date: val.date } : {}),
+        ...(val.modified ? { modified: val.modified } : {}),
       }
     } else {
       host.currentProject = null
@@ -141,12 +146,22 @@ export async function deleteProject(host: CmsProjectsList) {
 
 /**
  * Writes the current project back to its locale node — the whole record
- * (title/folder/seo/cover/sections) is replaced atomically since the
- * editor owns the complete shape.
+ * (title/folder/seo/cover/sections + the publication stamps) is replaced
+ * atomically since the editor owns the complete shape. `date` passes
+ * through untouched (it is the git-derived publication stamp, not an
+ * editable field) — a record that lacks one (CMS-created project, never
+ * committed to git) gets its first save stamped as the publication
+ * moment; `modified` is stamped fresh on every save so
+ * dateModified/<lastmod> consumers always see the last real edit.
  * @param host — the host component holding `currentProject`
  */
 export async function saveProjectData(host: CmsProjectsList) {
   if (!host.selectedProjectKey || !host.currentProject) return
+
+  const stamp = new Date().toISOString()
+
+  if (!host.currentProject.date) host.currentProject.date = stamp
+  host.currentProject.modified = stamp
   host.saving = true
   host._updateDom()
   try {
